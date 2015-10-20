@@ -11,9 +11,16 @@
 *.userprefs
 
 # Build results
-[Dd]ebug/
+CVAsteroidGame/Debug/
+[Dd]ebug/*.log
+[Dd]ebug/*.exe
+[Dd]ebug/*.pdb
 [Dd]ebugPublic/
-[Rr]elease/
+
+CVAsteroidGame/Release/
+[Rr]elease/*.log
+[Rr]elease/*.exe
+[Rr]elease/*.pdb
 [Rr]eleases/
 x64/
 x86/
