@@ -40,8 +40,8 @@ void CVProcess::runThread()
 		// Update data
 		cap >> captureFrame;
 		if (captureFrame.data) {
-			Mat result;
-			resize(captureFrame, captureFrame, Size(captureFrame.cols / 2, captureFrame.rows / 2));
+			cv::Mat result;
+			resize(captureFrame, captureFrame, cv::Size(captureFrame.cols / 2, captureFrame.rows / 2));
 			flip(captureFrame, captureFrame, 1);
 			mHeadPose->process(captureFrame, result);
 			cv::imshow("Webcam", result);

@@ -49,6 +49,8 @@ public:
 	void onLeftPressed(const OIS::MouseEvent &evt);
     void itemSelected(OgreBites::SelectMenu* menu);
 
+	void moveByHeadPose();
+
 	void update(double timeSinceLastFrame);
 
 private:
@@ -71,6 +73,9 @@ private:
 	Ogre::Entity*				m_pCurrentEntity;
 	bool						m_bLMouseDown, m_bRMouseDown;
 	bool						m_bSettingsMode;
+
+	// Head Pose
+	Ogre::Matrix3				m_LastHeadPose;
 };
 
 //|||||||||||||||||||||||||||||||||||||||||||||||

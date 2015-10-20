@@ -1,13 +1,12 @@
 //|||||||||||||||||||||||||||||||||||||||||||||||
 
 #include "GameState.hpp"
+#include "CVProcess.hpp"
 
 //|||||||||||||||||||||||||||||||||||||||||||||||
 
-using namespace Ogre;
-
-Entity* cube;
-SceneNode* cubeNode;
+Ogre::Entity* cube;
+Ogre::SceneNode* cubeNode;
 Ogre::Vector3 mPosition;
 Ogre::Vector3 mDirection;
 bool m_move;
@@ -35,21 +34,21 @@ void GameState::enter()
 {
     OgreFramework::getSingletonPtr()->m_pLog->logMessage("Entering GameState...");
 
-    m_pSceneMgr = OgreFramework::getSingletonPtr()->m_pRoot->createSceneManager(ST_GENERIC, "GameSceneMgr");
+	m_pSceneMgr = OgreFramework::getSingletonPtr()->m_pRoot->createSceneManager(Ogre::ST_GENERIC, "GameSceneMgr");
     m_pSceneMgr->setAmbientLight(Ogre::ColourValue(0.7f, 0.7f, 0.7f));
 
     m_pSceneMgr->addRenderQueueListener(OgreFramework::getSingletonPtr()->m_pOverlaySystem);
 
-    m_pRSQ = m_pSceneMgr->createRayQuery(Ray());
+	m_pRSQ = m_pSceneMgr->createRayQuery(Ogre::Ray());
     m_pRSQ->setQueryMask(OGRE_HEAD_MASK);
 
     m_pCamera = m_pSceneMgr->createCamera("GameCamera");
-    m_pCamera->setPosition(Vector3(0, 0, 20));
-    m_pCamera->lookAt(Vector3(0, 0, -20));
+	m_pCamera->setPosition(Ogre::Vector3(0, 0, 20));
+	m_pCamera->lookAt(Ogre::Vector3(0, 0, -20));
     m_pCamera->setNearClipDistance(5);
 
-    m_pCamera->setAspectRatio(Real(OgreFramework::getSingletonPtr()->m_pViewport->getActualWidth()) /
-        Real(OgreFramework::getSingletonPtr()->m_pViewport->getActualHeight()));
+	m_pCamera->setAspectRatio(Ogre::Real(OgreFramework::getSingletonPtr()->m_pViewport->getActualWidth()) /
+		Ogre::Real(OgreFramework::getSingletonPtr()->m_pViewport->getActualHeight()));
 
     OgreFramework::getSingletonPtr()->m_pViewport->setCamera(m_pCamera);
     m_pCurrentObject = 0;
@@ -205,8 +204,8 @@ bool GameState::mouseMoved(const OIS::MouseEvent &evt)
 
     if(m_bRMouseDown)
     {
-        m_pCamera->yaw(Degree(evt.state.X.rel * -0.1f));
-        m_pCamera->pitch(Degree(evt.state.Y.rel * -0.1f));
+		m_pCamera->yaw(Ogre::Degree(evt.state.X.rel * -0.1f));
+		m_pCamera->pitch(Ogre::Degree(evt.state.Y.rel * -0.1f));
     }
 
     return true;
@@ -312,6 +311,33 @@ void GameState::getInput()
             m_TranslateVector.y = -m_MoveScale;
     }
 }
+//|||||||||||||||||||||||||||||||||||||||||||||||
+
+void GameState::moveByHeadPose()
+{
+	
+	float* rotMat = (CVProcess::getInstance().mHeadPose)->getHeadRotationMatrix();
+	Ogre::Matrix3 currentRotationMatrix(
+		rotMat[0], rotMat[1], rotMat[2],
+		rotMat[3], rotMat[4], rotMat[5],
+		rotMat[6], rotMat[7], rotMat[8]);
+
+	Ogre::Radian euler_x, euler_y, euler_z;
+	currentRotationMatrix.ToEulerAnglesXYZ(euler_x, euler_y, euler_z);
+
+	//m_pCamera->yaw(euler_x);
+	//m_pCamera->pitch(euler_y);
+
+	/*Ogre::Quaternion cur_Q = Ogre::Quaternion(currentRotationMatrix);
+	Ogre::Quaternion last_Q = Ogre::Quaternion(m_LastHeadPose);
+
+	Ogre::Radian rel_pitch = cur_Q.getPitch() - last_Q.getPitch();
+	Ogre::Radian rel_yaw = cur_Q.getYaw() - last_Q.getYaw();*/
+
+	m_pCamera->setOrientation(Ogre::Quaternion(currentRotationMatrix));
+
+	m_LastHeadPose = currentRotationMatrix;
+}
 
 //|||||||||||||||||||||||||||||||||||||||||||||||
 
@@ -326,7 +352,7 @@ void GameState::update(double timeSinceLastFrame)
         return;
     }
 
-	Ogre::Vector3* dist = new Vector3(1,0,0);
+	Ogre::Vector3* dist = new Ogre::Vector3(1, 0, 0);
 	// FIX_HERE
 	//if (m_move)
 	{
@@ -354,10 +380,12 @@ void GameState::update(double timeSinceLastFrame)
     m_MoveScale = m_MoveSpeed   * timeSinceLastFrame;
     m_RotScale  = m_RotateSpeed * timeSinceLastFrame;
 
-    m_TranslateVector = Vector3::ZERO;
+	m_TranslateVector = Ogre::Vector3::ZERO;
 
     getInput();
     moveCamera();
+	// Move camera by head pose
+	moveByHeadPose();
 }
 
 //|||||||||||||||||||||||||||||||||||||||||||||||

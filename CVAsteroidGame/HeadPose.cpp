@@ -17,6 +17,39 @@ HeadPose::~HeadPose(void)
 }
 
 
+void HeadPose::init(void)
+{
+	face_cascade.load("haarcascade_frontalface_default.xml");
+	nose_cascade.load("Nariz_nuevo_20stages.xml");
+	left_eye_cascade.load("haar_l_eye.xml");
+	right_eye_cascade.load("haar_r_eye.xml");
+	eye_cascade.load("haar_r_eye.xml");
+	mouth_cascade.load("Mouth.xml");
+	
+
+	//Create the model points
+	cv::Point3f nosePoint(-0.0697709f, 18.6015f, 87.9695f);
+	modelPoints.push_back(cv::Point3f(0, 0, 0)); //nose (origin)
+	modelPoints.push_back(cv::Point3f(-36.9522f, 39.3518f, 47.1217f) - nosePoint);    //l eye
+	modelPoints.push_back(cv::Point3f(35.446f, 38.4345f, 47.6468f) - nosePoint);      //r eye
+	modelPoints.push_back(cv::Point3f(-27.6439f, -29.6388f, 73.8551f) - nosePoint);   //l mouth
+	modelPoints.push_back(cv::Point3f(28.7793f, -29.2935f, 72.7329f) - nosePoint);    //r mouth
+	//modelPoints.push_back(Point3f(-87.2155f,15.5829f,-45.1352f) - nosePoint);   //l ear
+	//modelPoints.push_back(Point3f(85.8383f,14.9023f,-46.3169f) - nosePoint);    //r ear
+
+	// Create axes points
+	axesPoints.push_back(cv::Point3f(0, 0, 0));
+	axesPoints.push_back(cv::Point3f(AXIS_SIZE, 0, 0)); // X
+	axesPoints.push_back(cv::Point3f(0, AXIS_SIZE, 0)); // Y
+	axesPoints.push_back(cv::Point3f(0, 0, AXIS_SIZE)); // Z
+
+	//Initialize etc
+	rotation_matrix = new float[9];
+	translation_vector = new float[3];
+	criteria = cvTermCriteria(CV_TERMCRIT_EPS | CV_TERMCRIT_ITER, 100, 1.0e-4f);
+
+}
+
 void project(CvPoint3D32f &input, CvPoint2D32f &output)
 {
 	if (input.z != 0)
@@ -53,61 +86,33 @@ void transformAndProject(CvPoint3D32f &input, CvPoint2D32f &output, float* rotat
 	}
 }
 
-void HeadPose::init(void)
+float* HeadPose::getHeadRotationMatrix(void)
 {
-	face_cascade.load("haarcascade_frontalface_default.xml");
-	nose_cascade.load("Nariz_nuevo_20stages.xml");
-	left_eye_cascade.load("haar_l_eye.xml");
-	right_eye_cascade.load("haar_r_eye.xml");
-	eye_cascade.load("haar_r_eye.xml");
-	mouth_cascade.load("Mouth.xml");
-	
-
-	//Create the model points
-	Point3f nosePoint(-0.0697709f, 18.6015f, 87.9695f);
-	modelPoints.push_back(Point3f(0, 0, 0)); //nose (origin)
-	modelPoints.push_back(Point3f(-36.9522f, 39.3518f, 47.1217f) - nosePoint);    //l eye
-	modelPoints.push_back(Point3f(35.446f, 38.4345f, 47.6468f) - nosePoint);      //r eye
-	modelPoints.push_back(Point3f(-27.6439f, -29.6388f, 73.8551f) - nosePoint);   //l mouth
-	modelPoints.push_back(Point3f(28.7793f, -29.2935f, 72.7329f) - nosePoint);    //r mouth
-	//modelPoints.push_back(Point3f(-87.2155f,15.5829f,-45.1352f) - nosePoint);   //l ear
-	//modelPoints.push_back(Point3f(85.8383f,14.9023f,-46.3169f) - nosePoint);    //r ear
-
-	// Create axes points
-	axesPoints.push_back(Point3f(0, 0, 0));
-	axesPoints.push_back(Point3f(AXIS_SIZE, 0, 0)); // X
-	axesPoints.push_back(Point3f(0, AXIS_SIZE, 0)); // Y
-	axesPoints.push_back(Point3f(0, 0, AXIS_SIZE)); // Z
-
-	//Initialize etc
-	rotation_matrix = new float[9];
-	translation_vector = new float[3];
-	criteria = cvTermCriteria(CV_TERMCRIT_EPS | CV_TERMCRIT_ITER, 100, 1.0e-4f);
-
+	return rotation_matrix;
 }
 
-void HeadPose::process(Mat &input, Mat &output)
+void HeadPose::process(cv::Mat &input, cv::Mat &output)
 {
 
 	if (input.data) {
 		output = input.clone();
 
-		Mat gray;
-		cvtColor(input, gray, COLOR_BGR2GRAY);
+		cv::Mat gray;
+		cvtColor(input, gray, cv::COLOR_BGR2GRAY);
 
-		vector<Rect> faces;
+		std::vector<cv::Rect> faces;
 		face_cascade.detectMultiScale(gray, faces, 1.3, 6);
 
 		for (size_t i = 0; i < faces.size(); i++) {
-			Rect face_rect = faces[i];
-			rectangle(output, faces[i], Scalar(0, 128, 0), 3); // Draw face roi
+			cv::Rect face_rect = faces[i];
+			rectangle(output, faces[i], cv::Scalar(0, 128, 0), 3); // Draw face roi
 
-			Mat face_roi(gray, face_rect);
-			Mat face_top_roi(face_roi, Rect(0, 0, face_rect.width, face_rect.height / 2));
-			Mat face_bottom_roi(face_roi, Rect(0, face_rect.height*0.5, face_rect.width, face_rect.height*0.5));
+			cv::Mat face_roi(gray, face_rect);
+			cv::Mat face_top_roi(face_roi, cv::Rect(0, 0, face_rect.width, face_rect.height / 2));
+			cv::Mat face_bottom_roi(face_roi, cv::Rect(0, face_rect.height*0.5, face_rect.width, face_rect.height*0.5));
 
 			// Nose detection
-			vector<Rect> noses;
+			std::vector<cv::Rect> noses;
 			nose_cascade.detectMultiScale(face_roi, noses, 1.1, 20);
 
 
@@ -116,11 +121,11 @@ void HeadPose::process(Mat &input, Mat &output)
 				noses[j].y += face_rect.y;
 				//cout << noses[i] << endl;
 
-				rectangle(output, noses[j], Scalar(0, 128, 128), 3); // Draw noses roi
+				rectangle(output, noses[j], cv::Scalar(0, 128, 128), 3); // Draw noses roi
 			}
 
 			// Eye detection
-			vector<Rect> eyes;
+			std::vector<cv::Rect> eyes;
 			eye_cascade.detectMultiScale(face_top_roi, eyes, 1.1, 20);
 
 			for (size_t j = 0; j < eyes.size() && j < 2; j++) {
@@ -128,11 +133,11 @@ void HeadPose::process(Mat &input, Mat &output)
 				eyes[j].y += face_rect.y;
 
 
-				rectangle(output, eyes[j], Scalar(128, 128, 128), 3); // Draw noses roi
+				rectangle(output, eyes[j], cv::Scalar(128, 128, 128), 3); // Draw noses roi
 			}
 
 			// Mouth detection
-			vector<Rect> mouths;
+			std::vector<cv::Rect> mouths;
 			mouth_cascade.detectMultiScale(face_bottom_roi, mouths, 1.3, 20);
 
 			for (size_t j = 0; j < mouths.size() && j < 1; j++) {
@@ -140,7 +145,7 @@ void HeadPose::process(Mat &input, Mat &output)
 				mouths[j].y += face_rect.y + face_rect.width / 2;
 
 
-				rectangle(output, mouths[j], Scalar(128, 128, 0), 3); // Draw noses roi
+				rectangle(output, mouths[j], cv::Scalar(128, 128, 0), 3); // Draw noses roi
 			}
 
 			bool detectedAll = noses.size() >= 1 && eyes.size() >= 2 && mouths.size() >= 1;
