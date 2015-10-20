@@ -6,6 +6,12 @@
 
 using namespace Ogre;
 
+Entity* cube;
+SceneNode* cubeNode;
+Ogre::Vector3 mPosition;
+Ogre::Vector3 mDirection;
+bool m_move;
+
 //|||||||||||||||||||||||||||||||||||||||||||||||
 
 GameState::GameState()
@@ -17,6 +23,8 @@ GameState::GameState()
     m_bRMouseDown       = false;
     m_bQuit             = false;
     m_bSettingsMode     = false;
+
+	m_move				= false;
 
     m_pDetailsPanel		= 0;
 }
@@ -36,8 +44,8 @@ void GameState::enter()
     m_pRSQ->setQueryMask(OGRE_HEAD_MASK);
 
     m_pCamera = m_pSceneMgr->createCamera("GameCamera");
-    m_pCamera->setPosition(Vector3(5, 60, 60));
-    m_pCamera->lookAt(Vector3(5, 20, 0));
+    m_pCamera->setPosition(Vector3(0, 0, 20));
+    m_pCamera->lookAt(Vector3(0, 0, -20));
     m_pCamera->setNearClipDistance(5);
 
     m_pCamera->setAspectRatio(Real(OgreFramework::getSingletonPtr()->m_pViewport->getActualWidth()) /
@@ -94,10 +102,12 @@ void GameState::createScene()
     pDotSceneLoader->parseDotScene("CubeScene.xml", "General", m_pSceneMgr, m_pSceneMgr->getRootSceneNode());
     delete pDotSceneLoader;
 
-    m_pSceneMgr->getEntity("Cube01")->setQueryFlags(CUBE_MASK);
+	m_pSceneMgr->getEntity("Cube01")->setQueryFlags(CUBE_MASK);
     m_pSceneMgr->getEntity("Cube02")->setQueryFlags(CUBE_MASK);
     m_pSceneMgr->getEntity("Cube03")->setQueryFlags(CUBE_MASK);
 
+	// OGRE HEAD
+	/*
     m_pOgreHeadEntity = m_pSceneMgr->createEntity("OgreHeadEntity", "ogrehead.mesh");
     m_pOgreHeadEntity->setQueryFlags(OGRE_HEAD_MASK);
     m_pOgreHeadNode = m_pSceneMgr->getRootSceneNode()->createChildSceneNode("OgreHeadNode");
@@ -108,6 +118,17 @@ void GameState::createScene()
     m_pOgreHeadMatHigh = m_pOgreHeadMat->clone("OgreHeadMatHigh");
     m_pOgreHeadMatHigh->getTechnique(0)->getPass(0)->setAmbient(1, 0, 0);
     m_pOgreHeadMatHigh->getTechnique(0)->getPass(0)->setDiffuse(1, 0, 0, 0);
+	*/
+
+	cube = m_pSceneMgr->createEntity("Cube01.mesh");
+
+	cube->setQueryFlags(CUBE_MASK);
+
+	cubeNode = m_pSceneMgr->getRootSceneNode()->createChildSceneNode(
+		Ogre::Vector3(0, 0, -200.0));
+	cubeNode->attachObject(cube);
+
+	m_pSceneMgr->setSkyBox(true, "SkyBox/Space");
 }
 
 //|||||||||||||||||||||||||||||||||||||||||||||||
@@ -201,6 +222,7 @@ bool GameState::mousePressed(const OIS::MouseEvent &evt, OIS::MouseButtonID id)
     {
         onLeftPressed(evt);
         m_bLMouseDown = true;
+		m_move = true;
     }
     else if(id == OIS::MB_Right)
     {
@@ -219,6 +241,7 @@ bool GameState::mouseReleased(const OIS::MouseEvent &evt, OIS::MouseButtonID id)
     if(id == OIS::MB_Left)
     {
         m_bLMouseDown = false;
+		m_move = false;
     }
     else if(id == OIS::MB_Right)
     {
@@ -255,7 +278,7 @@ void GameState::onLeftPressed(const OIS::MouseEvent &evt)
             OgreFramework::getSingletonPtr()->m_pLog->logMessage("ObjName " + m_pCurrentObject->getName());
             m_pCurrentObject->showBoundingBox(true);
             m_pCurrentEntity = m_pSceneMgr->getEntity(itr->movable->getName());
-            m_pCurrentEntity->getSubEntity(1)->setMaterial(m_pOgreHeadMatHigh);
+            //m_pCurrentEntity->getSubEntity(1)->setMaterial(m_pOgreHeadMatHigh);
             break;
         }
     }
@@ -283,10 +306,10 @@ void GameState::getInput()
             m_TranslateVector.x = m_MoveScale;
 
         if(OgreFramework::getSingletonPtr()->m_pKeyboard->isKeyDown(OIS::KC_W))
-            m_TranslateVector.z = -m_MoveScale;
+            m_TranslateVector.y = m_MoveScale;
 
         if(OgreFramework::getSingletonPtr()->m_pKeyboard->isKeyDown(OIS::KC_S))
-            m_TranslateVector.z = m_MoveScale;
+            m_TranslateVector.y = -m_MoveScale;
     }
 }
 
@@ -302,6 +325,13 @@ void GameState::update(double timeSinceLastFrame)
         popAppState();
         return;
     }
+
+	Ogre::Vector3* dist = new Vector3(1,0,0);
+	// FIX_HERE
+	//if (m_move)
+	{
+		cubeNode->translate(Ogre::Vector3(0, 0, 1));
+	}
 
     if(!OgreFramework::getSingletonPtr()->m_pTrayMgr->isDialogVisible())
     {
