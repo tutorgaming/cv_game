@@ -12,6 +12,8 @@
 #include <OgreSubEntity.h>
 #include <OgreMaterialManager.h>
 
+#include "MeteorSpawner.hpp"
+
 //|||||||||||||||||||||||||||||||||||||||||||||||
 
 enum QueryFlags
@@ -51,6 +53,8 @@ public:
 
 	void update(double timeSinceLastFrame);
 
+	void createMeteor();
+
 private:
 	Ogre::SceneNode*			m_pOgreHeadNode;
 	Ogre::Entity*				m_pOgreHeadEntity;
@@ -71,6 +75,8 @@ private:
 	Ogre::Entity*				m_pCurrentEntity;
 	bool						m_bLMouseDown, m_bRMouseDown;
 	bool						m_bSettingsMode;
+
+	MeteorSpawner*				m_meteorSpawner;
 };
 
 //|||||||||||||||||||||||||||||||||||||||||||||||

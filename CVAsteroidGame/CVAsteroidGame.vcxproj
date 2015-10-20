@@ -97,10 +97,13 @@
     <ClCompile Include="CVProcess.cpp" />
     <ClCompile Include="DemoApp.cpp" />
     <ClCompile Include="DotSceneLoader.cpp" />
+    <ClCompile Include="GameManager.cpp" />
     <ClCompile Include="GameState.cpp" />
     <ClCompile Include="HeadPose.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="MenuState.cpp" />
+    <ClCompile Include="Meteor.cpp" />
+    <ClCompile Include="MeteorSpawner.cpp" />
     <ClCompile Include="PauseState.cpp" />
   </ItemGroup>
   <ItemGroup>
@@ -110,9 +113,12 @@
     <ClInclude Include="CVProcess.hpp" />
     <ClInclude Include="DemoApp.hpp" />
     <ClInclude Include="DotSceneLoader.hpp" />
+    <ClInclude Include="GameManager.hpp" />
     <ClInclude Include="GameState.hpp" />
     <ClInclude Include="HeadPose.hpp" />
     <ClInclude Include="MenuState.hpp" />
+    <ClInclude Include="Meteor.hpp" />
+    <ClInclude Include="MeteorSpawner.hpp" />
     <ClInclude Include="PauseState.hpp" />
     <ClInclude Include="rapidxml.hpp" />
   </ItemGroup>

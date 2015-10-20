@@ -1,16 +1,15 @@
 //|||||||||||||||||||||||||||||||||||||||||||||||
 
 #include "GameState.hpp"
+#include "math.h"
+#include "time.h"
+
+#include "MeteorSpawner.hpp"
 
 //|||||||||||||||||||||||||||||||||||||||||||||||
 
 using namespace Ogre;
 
-Entity* cube;
-SceneNode* cubeNode;
-Ogre::Vector3 mPosition;
-Ogre::Vector3 mDirection;
-bool m_move;
 
 //|||||||||||||||||||||||||||||||||||||||||||||||
 
@@ -24,7 +23,6 @@ GameState::GameState()
     m_bQuit             = false;
     m_bSettingsMode     = false;
 
-	m_move				= false;
 
     m_pDetailsPanel		= 0;
 }
@@ -53,6 +51,8 @@ void GameState::enter()
 
     OgreFramework::getSingletonPtr()->m_pViewport->setCamera(m_pCamera);
     m_pCurrentObject = 0;
+
+	srand(time(NULL));
 
     buildGUI();
 
@@ -120,15 +120,10 @@ void GameState::createScene()
     m_pOgreHeadMatHigh->getTechnique(0)->getPass(0)->setDiffuse(1, 0, 0, 0);
 	*/
 
-	cube = m_pSceneMgr->createEntity("Cube01.mesh");
+	m_meteorSpawner = new MeteorSpawner(m_pSceneMgr);
+	m_meteorSpawner->generateMeteor(5);
 
-	cube->setQueryFlags(CUBE_MASK);
-
-	cubeNode = m_pSceneMgr->getRootSceneNode()->createChildSceneNode(
-		Ogre::Vector3(0, 0, -200.0));
-	cubeNode->attachObject(cube);
-
-	m_pSceneMgr->setSkyBox(true, "SkyBox/Space");
+	m_pSceneMgr->setSkyBox(true, "SkyBox/Space", 100);
 }
 
 //|||||||||||||||||||||||||||||||||||||||||||||||
@@ -222,7 +217,6 @@ bool GameState::mousePressed(const OIS::MouseEvent &evt, OIS::MouseButtonID id)
     {
         onLeftPressed(evt);
         m_bLMouseDown = true;
-		m_move = true;
     }
     else if(id == OIS::MB_Right)
     {
@@ -241,7 +235,6 @@ bool GameState::mouseReleased(const OIS::MouseEvent &evt, OIS::MouseButtonID id)
     if(id == OIS::MB_Left)
     {
         m_bLMouseDown = false;
-		m_move = false;
     }
     else if(id == OIS::MB_Right)
     {
@@ -310,6 +303,9 @@ void GameState::getInput()
 
         if(OgreFramework::getSingletonPtr()->m_pKeyboard->isKeyDown(OIS::KC_S))
             m_TranslateVector.y = -m_MoveScale;
+
+		if (OgreFramework::getSingletonPtr()->m_pKeyboard->isKeyDown(OIS::KC_G))
+			createMeteor();
     }
 }
 
@@ -327,11 +323,6 @@ void GameState::update(double timeSinceLastFrame)
     }
 
 	Ogre::Vector3* dist = new Vector3(1,0,0);
-	// FIX_HERE
-	//if (m_move)
-	{
-		cubeNode->translate(Ogre::Vector3(0, 0, 1));
-	}
 
     if(!OgreFramework::getSingletonPtr()->m_pTrayMgr->isDialogVisible())
     {
