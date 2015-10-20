@@ -41,6 +41,8 @@ void CVProcess::runThread()
 		cap >> captureFrame;
 		if (captureFrame.data) {
 			Mat result;
+			resize(captureFrame, captureFrame, Size(captureFrame.cols / 2, captureFrame.rows / 2));
+			flip(captureFrame, captureFrame, 1);
 			mHeadPose->process(captureFrame, result);
 			cv::imshow("Webcam", result);
 		}
@@ -49,3 +51,4 @@ void CVProcess::runThread()
 		boost::this_thread::sleep(boost::posix_time::milliseconds(25));
 	}
 }
+

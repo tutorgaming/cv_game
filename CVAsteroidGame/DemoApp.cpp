@@ -18,7 +18,7 @@ DemoApp::DemoApp()
 DemoApp::~DemoApp()
 {
 	delete m_pAppStateManager;
-	delete m_CVProcess;
+	//delete CVProcess::getSingletonPtr();
     delete OgreFramework::getSingletonPtr();
 }
 
@@ -35,8 +35,8 @@ void DemoApp::startDemo()
 	m_pAppStateManager = new AppStateManager();
 
 	// Init CV process
-	m_CVProcess = new CVProcess();
-	m_CVProcess->init();
+	//new CVProcess();
+	CVProcess::getInstance().init();
 
 
 	// Create scenes

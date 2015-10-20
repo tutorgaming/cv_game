@@ -21,8 +21,10 @@ public:
 
 private:
 	AppStateManager*	m_pAppStateManager;
-	CVProcess* m_CVProcess;
 };
+
+
+	
 
 //|||||||||||||||||||||||||||||||||||||||||||||||
 

@@ -16,13 +16,20 @@ private:
 	cv::Mat captureFrame;
 	bool mRunning;
 	HeadPose* mHeadPose;
+	
 public:
 
 	CVProcess(void);
 	virtual ~CVProcess(void);
 	void init(void);
+	static CVProcess& getInstance()
+	{
+		static CVProcess instance;
+		return instance;
+	}
 
 private:
 	void runThread();
+	
 
 };
