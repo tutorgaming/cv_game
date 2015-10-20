@@ -3,6 +3,7 @@
 #include <boost/shared_ptr.hpp>
 
 #include <opencv2/opencv.hpp>
+#include "HeadPose.hpp"
 
 //---------------------------------------------------------------------------
 
@@ -14,6 +15,7 @@ private:
 	cv::VideoCapture cap;
 	cv::Mat captureFrame;
 	bool mRunning;
+	HeadPose* mHeadPose;
 public:
 
 	CVProcess(void);

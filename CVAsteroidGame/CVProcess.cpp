@@ -21,9 +21,14 @@ void CVProcess::init(void)
 {
 	mRunning = true;
 
+	// Create head pose
+	mHeadPose = new HeadPose();
+	mHeadPose->init();
+
 	// Create the thread and start work
 	assert(!mThread);
 	mThread = boost::shared_ptr<boost::thread>(new boost::thread(boost::bind(&CVProcess::runThread, this)));
+		
 }
 
 void CVProcess::runThread()
@@ -35,7 +40,9 @@ void CVProcess::runThread()
 		// Update data
 		cap >> captureFrame;
 		if (captureFrame.data) {
-			cv::imshow("Webcam", captureFrame);
+			Mat result;
+			mHeadPose->process(captureFrame, result);
+			cv::imshow("Webcam", result);
 		}
 
 		// Wait
