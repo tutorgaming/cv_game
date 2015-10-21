@@ -15,21 +15,23 @@ private:
 	cv::VideoCapture cap;
 	cv::Mat captureFrame;
 	bool mRunning;
-	HeadPose* mHeadPose;
 	
+
+public:
+	HeadPose* mHeadPose;
+
+private:
+	void runThread();
+
 public:
 
 	CVProcess(void);
 	virtual ~CVProcess(void);
-	void init(void);
 	static CVProcess& getInstance()
 	{
 		static CVProcess instance;
 		return instance;
 	}
-
-private:
-	void runThread();
-	
+	void init(void);
 
 };

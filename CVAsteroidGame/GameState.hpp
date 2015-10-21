@@ -51,6 +51,8 @@ public:
 	void onLeftPressed(const OIS::MouseEvent &evt);
     void itemSelected(OgreBites::SelectMenu* menu);
 
+	void moveByHeadPose();
+
 	void update(double timeSinceLastFrame);
 
 	void spawnMeteor();
@@ -78,12 +80,17 @@ private:
 	Ogre::Entity*				m_pCurrentEntity;
 	bool						m_bLMouseDown, m_bRMouseDown;
 	bool						m_bSettingsMode;
+
 	float						m_spawnElapsedTime;
 	float						m_spawnRndDelay;
 	float						m_spawnMinDelay;
 	float						m_spawnMaxDelay;
 
 	std::vector<Meteor*>			m_meteorList;
+
+	// Head Pose
+	Ogre::Matrix3				m_LastHeadPose;
+
 };
 
 //|||||||||||||||||||||||||||||||||||||||||||||||

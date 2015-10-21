@@ -5,13 +5,11 @@
 
 //---------------------------------------------------------------------------
 
-using namespace cv;
-
 class HeadPose
 {
 
 private:
-	CascadeClassifier face_cascade, nose_cascade, eye_cascade, left_eye_cascade, right_eye_cascade, mouth_cascade;
+	cv::CascadeClassifier face_cascade, nose_cascade, eye_cascade, left_eye_cascade, right_eye_cascade, mouth_cascade;
 	std::vector<CvPoint3D32f> modelPoints;
 	std::vector<CvPoint3D32f> axesPoints;
 	std::vector<CvPoint2D32f> srcImagePoints;
@@ -26,8 +24,9 @@ public:
 	HeadPose(void);
 	virtual ~HeadPose(void);
 	void init(void);
+	float* getHeadRotationMatrix(void);
 
 public:
-	void process(Mat &input, Mat &output);
+	void process(cv::Mat &input, cv::Mat &output);
 
 };
