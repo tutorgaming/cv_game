@@ -425,7 +425,8 @@ void GameState::checkGenerateMeteor(double timeSinceLastFrame)
 	{
 		m_spawnElapsedTime = 0;
 		randomSpawnDelay();
-		spawnMeteor();
+		for (int i = 0; i < 3; i++)
+			spawnMeteor();
 	}
 }
 
