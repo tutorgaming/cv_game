@@ -12,7 +12,7 @@
 #include <OgreSubEntity.h>
 #include <OgreMaterialManager.h>
 
-#include "MeteorSpawner.hpp"
+#include "Meteor.hpp"
 
 //|||||||||||||||||||||||||||||||||||||||||||||||
 
@@ -53,7 +53,10 @@ public:
 
 	void update(double timeSinceLastFrame);
 
-	void createMeteor();
+	void spawnMeteor();
+	void updateMeteor(double timeSinceLastFrame);
+	void checkGenerateMeteor(double timeSinceLastFrame);
+	void randomSpawnDelay();
 
 private:
 	Ogre::SceneNode*			m_pOgreHeadNode;
@@ -75,8 +78,12 @@ private:
 	Ogre::Entity*				m_pCurrentEntity;
 	bool						m_bLMouseDown, m_bRMouseDown;
 	bool						m_bSettingsMode;
+	float						m_spawnElapsedTime;
+	float						m_spawnRndDelay;
+	float						m_spawnMinDelay;
+	float						m_spawnMaxDelay;
 
-	MeteorSpawner*				m_meteorSpawner;
+	std::vector<Meteor*>			m_meteorList;
 };
 
 //|||||||||||||||||||||||||||||||||||||||||||||||

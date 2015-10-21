@@ -4,7 +4,6 @@
 #include "math.h"
 #include "time.h"
 
-#include "MeteorSpawner.hpp"
 
 //|||||||||||||||||||||||||||||||||||||||||||||||
 
@@ -42,8 +41,8 @@ void GameState::enter()
     m_pRSQ->setQueryMask(OGRE_HEAD_MASK);
 
     m_pCamera = m_pSceneMgr->createCamera("GameCamera");
-    m_pCamera->setPosition(Vector3(0, 0, 20));
-    m_pCamera->lookAt(Vector3(0, 0, -20));
+    m_pCamera->setPosition(Vector3(0, 0, 0));
+    m_pCamera->lookAt(Vector3(0, 0, 20));
     m_pCamera->setNearClipDistance(5);
 
     m_pCamera->setAspectRatio(Real(OgreFramework::getSingletonPtr()->m_pViewport->getActualWidth()) /
@@ -102,10 +101,16 @@ void GameState::createScene()
     pDotSceneLoader->parseDotScene("CubeScene.xml", "General", m_pSceneMgr, m_pSceneMgr->getRootSceneNode());
     delete pDotSceneLoader;
 
+	m_spawnMaxDelay = 1200;
+	m_spawnMinDelay = 500;
+	randomSpawnDelay();
+	m_spawnElapsedTime = 0;
+
+	/*
 	m_pSceneMgr->getEntity("Cube01")->setQueryFlags(CUBE_MASK);
     m_pSceneMgr->getEntity("Cube02")->setQueryFlags(CUBE_MASK);
     m_pSceneMgr->getEntity("Cube03")->setQueryFlags(CUBE_MASK);
-
+	*/
 	// OGRE HEAD
 	/*
     m_pOgreHeadEntity = m_pSceneMgr->createEntity("OgreHeadEntity", "ogrehead.mesh");
@@ -120,10 +125,7 @@ void GameState::createScene()
     m_pOgreHeadMatHigh->getTechnique(0)->getPass(0)->setDiffuse(1, 0, 0, 0);
 	*/
 
-	m_meteorSpawner = new MeteorSpawner(m_pSceneMgr);
-	m_meteorSpawner->generateMeteor(5);
-
-	m_pSceneMgr->setSkyBox(true, "SkyBox/Space", 100);
+	m_pSceneMgr->setSkyBox(true, "SkyBox/Space", 1000);
 }
 
 //|||||||||||||||||||||||||||||||||||||||||||||||
@@ -305,11 +307,27 @@ void GameState::getInput()
             m_TranslateVector.y = -m_MoveScale;
 
 		if (OgreFramework::getSingletonPtr()->m_pKeyboard->isKeyDown(OIS::KC_G))
-			createMeteor();
+			spawnMeteor();
     }
 }
 
 //|||||||||||||||||||||||||||||||||||||||||||||||
+
+void GameState::spawnMeteor()
+{
+	for each(Meteor* m in m_meteorList)
+	{
+		if (!m->isActive())
+		{
+			m->reset();//Will Be Optimized  to objPool Soon
+			return;
+		}
+	}
+	Meteor *m = new Meteor();
+	m_meteorList.push_back(m);
+	m->setSceneManager(m_pSceneMgr);
+	m->create();
+}
 
 void GameState::update(double timeSinceLastFrame)
 {
@@ -346,11 +364,41 @@ void GameState::update(double timeSinceLastFrame)
     m_RotScale  = m_RotateSpeed * timeSinceLastFrame;
 
     m_TranslateVector = Vector3::ZERO;
-
+	
     getInput();
     moveCamera();
+
+	// Generate meteor
+	checkGenerateMeteor(timeSinceLastFrame);
+
+	updateMeteor(timeSinceLastFrame);
 }
 
+void GameState::checkGenerateMeteor(double timeSinceLastFrame)
+{
+	m_spawnElapsedTime += (float)timeSinceLastFrame;
+	if (m_spawnElapsedTime >= m_spawnRndDelay)
+	{
+		m_spawnElapsedTime = 0;
+		randomSpawnDelay();
+		spawnMeteor();
+	}
+}
+
+void GameState::randomSpawnDelay()
+{
+	m_spawnRndDelay = (float)Ogre::Math::RangeRandom(m_spawnMinDelay, m_spawnMaxDelay);
+	//m_spawnRndDelay = 3000;
+}
+
+void GameState::updateMeteor(double timeSinceLastFrame)
+{
+	for each(Meteor* m in m_meteorList)
+	{
+		if (m->isActive())
+			m->move(timeSinceLastFrame);
+	}
+}
 //|||||||||||||||||||||||||||||||||||||||||||||||
 
 void GameState::buildGUI()

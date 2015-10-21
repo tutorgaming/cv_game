@@ -103,7 +103,6 @@
     <ClCompile Include="main.cpp" />
     <ClCompile Include="MenuState.cpp" />
     <ClCompile Include="Meteor.cpp" />
-    <ClCompile Include="MeteorSpawner.cpp" />
     <ClCompile Include="PauseState.cpp" />
   </ItemGroup>
   <ItemGroup>
@@ -118,7 +117,6 @@
     <ClInclude Include="HeadPose.hpp" />
     <ClInclude Include="MenuState.hpp" />
     <ClInclude Include="Meteor.hpp" />
-    <ClInclude Include="MeteorSpawner.hpp" />
     <ClInclude Include="PauseState.hpp" />
     <ClInclude Include="rapidxml.hpp" />
   </ItemGroup>
