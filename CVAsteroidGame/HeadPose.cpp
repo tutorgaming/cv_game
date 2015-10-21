@@ -94,7 +94,7 @@ float* HeadPose::getHeadRotationMatrix(void)
 float* HeadPose::getHeadPosition() // return -1 to 1
 {
 	float xPos = (m_lastHeadPosition.x - m_FrameWidth / 2) / m_FrameWidth * 2;
-	float yPos = (m_lastHeadPosition.y - m_FrameHeight / 2) / m_FrameHeight * 2;
+	float yPos = -(m_lastHeadPosition.y - m_FrameHeight / 2) / m_FrameHeight * 2;
 	float* result = new float[2];
 	result[0] = xPos;
 	result[1] = yPos;

@@ -46,7 +46,7 @@ void GameState::enter()
     m_pCamera = m_pSceneMgr->createCamera("GameCamera");
 
 	m_pCamera->setPosition(Ogre::Vector3(0, 0, 0));
-    m_pCamera->lookAt(Ogre::Vector3(0, 0, 20));
+    m_pCamera->lookAt(Ogre::Vector3(0, 0, -20));
 
     m_pCamera->setNearClipDistance(5);
 
@@ -110,6 +110,8 @@ void GameState::createScene()
 	m_spawnMinDelay = 500;
 	randomSpawnDelay();
 	m_spawnElapsedTime = 0;
+
+	m_headMoveScale = 150;
 
 	/*
 	m_pSceneMgr->getEntity("Cube01")->setQueryFlags(CUBE_MASK);
@@ -317,6 +319,12 @@ void GameState::getInput()
 }
 //|||||||||||||||||||||||||||||||||||||||||||||||
 
+void GameState::moveByHeadPosition()
+{
+	float* headPos = CVProcess::getInstance().mHeadPose->getHeadPosition();
+	m_pCamera->setPosition(headPos[0] * m_headMoveScale, headPos[1] * m_headMoveScale, m_pCamera->getPosition().z);
+}
+
 void GameState::moveByHeadPose()
 {
 	
@@ -401,6 +409,8 @@ void GameState::update(double timeSinceLastFrame)
 
 	// Move camera by head pose
 	//moveByHeadPose();
+
+	moveByHeadPosition();
 
 	// Generate meteor
 	checkGenerateMeteor(timeSinceLastFrame);

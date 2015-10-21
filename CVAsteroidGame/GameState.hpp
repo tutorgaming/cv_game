@@ -52,6 +52,7 @@ public:
     void itemSelected(OgreBites::SelectMenu* menu);
 
 	void moveByHeadPose();
+	void moveByHeadPosition();
 
 	void update(double timeSinceLastFrame);
 
@@ -90,6 +91,7 @@ private:
 
 	// Head Pose
 	Ogre::Matrix3				m_LastHeadPose;
+	float						m_headMoveScale;
 
 };
 

@@ -37,7 +37,7 @@ void Meteor::create()
 	m_MeteorOrientation = 0.0;
 	m_MeteorAcceleration = 0.001;
 	m_MeteorMaxSpeed = 0.9;
-	m_MeteorSpeed = Ogre::Vector3(0.0, 0.0, -0.9);
+	m_MeteorSpeed = Ogre::Vector3(0.0, 0.0, 0.9);
 	m_MeteorRotateSpeed = 0.2;
 	m_MeteorRotation = 0.0;
 
@@ -63,7 +63,7 @@ void Meteor::reset()
 	
 	int yRand = (int)(Ogre::Math::UnitRandom() * n) - offset;
 
-	m_pMeteorNode->setPosition(Ogre::Vector3(xRand * gridSize, yRand * gridSize, m_fieldZ));
+	m_pMeteorNode->setPosition(Ogre::Vector3(xRand * gridSize, yRand * gridSize, -m_fieldZ));
 }
 
 
@@ -80,9 +80,12 @@ void Meteor::move(double timeSinceLastFrame)
 	if (position.x < -m_fieldX)	position.x = m_fieldX;
 	if (position.y > m_fieldY)	position.y = -m_fieldY;
 	if (position.y < -m_fieldY)	position.y = m_fieldY;
-	if (position.z > m_fieldZ)	position.z = -m_fieldZ;
-	if (position.z < -m_fieldZ)	{
+	if (position.z > m_fieldZ)	{
 		die();
+	}
+	if (position.z < -m_fieldZ)	{
+		position.z = m_fieldZ;
+		
 	}
 	if (position != m_pMeteorNode->getPosition())
 		m_pMeteorNode->setPosition(position);
