@@ -19,12 +19,16 @@ private:
 	CvTermCriteria criteria;
 	std::vector<CvPoint2D32f> projectedPoints;
 	std::vector<CvPoint2D32f> projectedOriginalPoints;
+	CvPoint2D32f m_lastHeadPosition;
+	int m_FrameHeight;
+	int m_FrameWidth;
 public:
 
 	HeadPose(void);
 	virtual ~HeadPose(void);
 	void init(void);
 	float* getHeadRotationMatrix(void);
+	float* getHeadPosition();
 
 public:
 	void process(cv::Mat &input, cv::Mat &output);

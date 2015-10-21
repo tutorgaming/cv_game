@@ -6,7 +6,7 @@
 
 HeadPose::HeadPose(void)
 {
-	
+
 }
 
 HeadPose::~HeadPose(void)
@@ -91,10 +91,22 @@ float* HeadPose::getHeadRotationMatrix(void)
 	return rotation_matrix;
 }
 
+float* HeadPose::getHeadPosition() // return -1 to 1
+{
+	float xPos = (m_lastHeadPosition.x - m_FrameWidth / 2) / m_FrameWidth * 2;
+	float yPos = (m_lastHeadPosition.y - m_FrameHeight / 2) / m_FrameHeight * 2;
+	float* result = new float[2];
+	result[0] = xPos;
+	result[1] = yPos;
+	return result;
+}
+
 void HeadPose::process(cv::Mat &input, cv::Mat &output)
 {
 
 	if (input.data) {
+		m_FrameWidth = input.cols;
+		m_FrameHeight = input.rows;
 		output = input.clone();
 
 		cv::Mat gray;
@@ -105,6 +117,11 @@ void HeadPose::process(cv::Mat &input, cv::Mat &output)
 
 		for (size_t i = 0; i < faces.size(); i++) {
 			cv::Rect face_rect = faces[i];
+			if (i == 0)
+			{
+				// update last head position
+				m_lastHeadPosition = cvPoint2D32f(face_rect.x + face_rect.width / 2, face_rect.y + face_rect.height / 2);
+			}
 			rectangle(output, faces[i], cv::Scalar(0, 128, 0), 3); // Draw face roi
 
 			cv::Mat face_roi(gray, face_rect);
