@@ -27,6 +27,9 @@ GameState::GameState()
 
 
     m_pDetailsPanel		= 0;
+
+	m_lookPosition = Ogre::Vector3(0, 0, -20);
+	m_currentLookPos = m_lookPosition;
 }
 
 //|||||||||||||||||||||||||||||||||||||||||||||||
@@ -46,7 +49,7 @@ void GameState::enter()
     m_pCamera = m_pSceneMgr->createCamera("GameCamera");
 
 	m_pCamera->setPosition(Ogre::Vector3(0, 0, 0));
-    m_pCamera->lookAt(Ogre::Vector3(0, 0, -20));
+    m_pCamera->lookAt(m_lookPosition);
 
     m_pCamera->setNearClipDistance(5);
 
@@ -112,6 +115,7 @@ void GameState::createScene()
 	m_spawnElapsedTime = 0;
 
 	m_headMoveScale = 150;
+	
 
 	/*
 	m_pSceneMgr->getEntity("Cube01")->setQueryFlags(CUBE_MASK);
@@ -322,7 +326,11 @@ void GameState::getInput()
 void GameState::moveByHeadPosition()
 {
 	float* headPos = CVProcess::getInstance().mHeadPose->getHeadPosition();
-	m_pCamera->setPosition(headPos[0] * m_headMoveScale, headPos[1] * m_headMoveScale, m_pCamera->getPosition().z);
+	m_camTargetPos = Ogre::Vector3(headPos[0] * m_headMoveScale, headPos[1] * m_headMoveScale, m_pCamera->getPosition().z);
+	
+	Ogre::Vector3 smoothCamPos = m_pCamera->getPosition() + 0.2 * (m_camTargetPos - m_pCamera->getPosition());
+
+	m_pCamera->setPosition(smoothCamPos);
 }
 
 void GameState::moveByHeadPose()
@@ -334,8 +342,25 @@ void GameState::moveByHeadPose()
 		rotMat[3], rotMat[4], rotMat[5],
 		rotMat[6], rotMat[7], rotMat[8]);
 
-	Ogre::Radian euler_x, euler_y, euler_z;
-	currentRotationMatrix.ToEulerAnglesXYZ(euler_x, euler_y, euler_z);
+	Ogre::Vector3 camPos = m_pCamera->getPosition();
+
+	Ogre::Vector3 newLookPos;
+	newLookPos.x = rotMat[0] * m_lookPosition.x +
+		rotMat[1] * m_lookPosition.y +
+		rotMat[2] * m_lookPosition.z;
+	newLookPos.y = rotMat[3] * m_lookPosition.x +
+		rotMat[4] * m_lookPosition.y +
+		rotMat[5] * m_lookPosition.z;
+	newLookPos.z = rotMat[6] * m_lookPosition.x +
+		rotMat[7] * m_lookPosition.y +
+		rotMat[8] * m_lookPosition.z;
+
+	newLookPos.z *= -1;
+	//newLookPos.y *= -1;
+	newLookPos.x *= -1;
+
+	//Ogre::Radian euler_x, euler_y, euler_z;
+	//currentRotationMatrix.ToEulerAnglesXYZ(euler_x, euler_y, euler_z);
 
 	//m_pCamera->yaw(euler_x);
 	//m_pCamera->pitch(euler_y);
@@ -345,8 +370,15 @@ void GameState::moveByHeadPose()
 
 	Ogre::Radian rel_pitch = cur_Q.getPitch() - last_Q.getPitch();
 	Ogre::Radian rel_yaw = cur_Q.getYaw() - last_Q.getYaw();*/
+	//m_pCamera->lookAt()
+	//m_pCamera->setOrientation(Ogre::Quaternion(currentRotationMatrix));
 
-	m_pCamera->setOrientation(Ogre::Quaternion(currentRotationMatrix));
+
+	Ogre::Vector3 smoothLookPos = m_currentLookPos + 0.2 * (newLookPos - m_currentLookPos);
+
+	m_currentLookPos = smoothLookPos;
+
+	m_pCamera->lookAt(smoothLookPos + camPos);
 
 	m_LastHeadPose = currentRotationMatrix;
 }
@@ -406,11 +438,12 @@ void GameState::update(double timeSinceLastFrame)
 
     getInput();
     moveCamera();
-
-	// Move camera by head pose
-	//moveByHeadPose();
+	
 
 	moveByHeadPosition();
+
+	// Move camera by head pose
+	moveByHeadPose();
 
 	// Generate meteor
 	checkGenerateMeteor(timeSinceLastFrame);

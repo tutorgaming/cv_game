@@ -89,8 +89,13 @@ private:
 
 	std::vector<Meteor*>			m_meteorList;
 
+	// Camera
+	Ogre::Vector3				m_lookPosition;
+
 	// Head Pose
 	Ogre::Matrix3				m_LastHeadPose;
+	Ogre::Vector3				m_camTargetPos;
+	Ogre::Vector3				m_currentLookPos;
 	float						m_headMoveScale;
 
 };
