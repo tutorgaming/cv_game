@@ -48,7 +48,7 @@ void CVProcess::runThread()
 		}
 
 		// Wait
-		boost::this_thread::sleep(boost::posix_time::milliseconds(25));
+		//boost::this_thread::sleep(boost::posix_time::milliseconds(25));
 	}
 }
 

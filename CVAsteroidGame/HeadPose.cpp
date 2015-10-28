@@ -4,6 +4,8 @@
 #define CUBE_SIZE 10
 #define AXIS_SIZE 100
 
+using namespace cv;
+
 HeadPose::HeadPose(void)
 {
 
@@ -109,6 +111,170 @@ void HeadPose::process(cv::Mat &input, cv::Mat &output)
 		m_FrameHeight = input.rows;
 		output = input.clone();
 
+		Mat gray;
+
+		cvtColor(input, gray, COLOR_BGR2GRAY);
+
+		vector<Rect> faces;
+		face_cascade.detectMultiScale(gray, faces, 1.1, 5);
+		//////////To Add + minor change from ver 21-10-2015//////////////
+		if (faces.size() != 0){
+			int maxArea = 0, i = 0;
+			for (int j = 0; j < faces.size(); j++) {
+				if (maxArea<faces[j].area()){
+					i = j;
+					maxArea = faces[j].area();
+				}
+
+			}
+			///////////////////////////////////////////////////////////////////
+			Rect face_rect = faces[i];
+			rectangle(output, faces[i], Scalar(0, 128, 0), 3); // Draw face roi
+
+
+			// update last head position
+			m_lastHeadPosition = cvPoint2D32f(face_rect.x + face_rect.width / 2, face_rect.y + face_rect.height / 2);
+
+			Mat face_roi(gray, face_rect);
+			Mat face_top_roi(face_roi, Rect(0, 0, face_rect.width, face_rect.height / 2));
+			// Mat face_bottom_roi;
+
+			///////////////Add 4 below lines of code////////
+			Rect top_left_rect = Rect(0, 0, face_rect.width / 2, face_rect.height / 2);
+			Rect top_right_rect = Rect(face_rect.width / 2, 0, face_rect.width / 2, face_rect.height / 2);
+
+			Mat face_top_left_roi(face_roi, top_left_rect);
+			Mat face_top_right_roi(face_roi, top_right_rect);
+			//Mat face_bottom_roi;
+			Mat face_bottom_roi(face_roi, Rect(0, 0, face_rect.width, face_rect.height / 2));
+			//     Mat face_bottom_roi2(face_roi, Rect(0,face_rect.height*0.5,face_rect.width, face_rect.height*0.5));
+
+			// Nose detection
+			vector<Rect> noses;
+			nose_cascade.detectMultiScale(face_roi, noses, 1.1, 10);
+			if (noses.size() != 0 && noses[0].y<face_rect.height*0.74){
+				//                        Mat face_bottom_roi(face_roi, Rect(0,face_rect.height*0.15+noses[0].y-face_rect.y,face_rect.width, face_rect.height*0.35));
+				face_bottom_roi = Mat(face_roi, Rect(0, face_rect.height*0.26 + noses[0].y, face_rect.width, face_rect.height*0.74 - noses[0].y));
+				//imshow("bottom_roi", face_bottom_roi);
+			}
+
+			for (int j = 0; j < noses.size() && j < 1; j++) {
+
+				noses[j].x += face_rect.x;
+				noses[j].y += face_rect.y;
+				//cout << noses[i] << endl;
+
+				rectangle(output, noses[j], Scalar(0, 128, 128), 3); // Draw noses roi
+			}
+
+			// Eye detection
+			/////////////Eye detection code change all
+			//////use both left/right eyes cascade
+			if (noses.size() != 0){
+				vector<Rect> l_eyes;
+				left_eye_cascade.detectMultiScale(face_top_left_roi, l_eyes, 1.05, 18);
+				for (int j = 0; j < l_eyes.size() && j < 1; j++) {
+					l_eyes[j].x += face_rect.x;
+					l_eyes[j].y += face_rect.y;
+					rectangle(output, l_eyes[j], Scalar(128, 128, 128), 3); // Draw noses roi
+				}
+				//add if
+				if (l_eyes.size() != 0){
+					vector<Rect> r_eyes;
+					right_eye_cascade.detectMultiScale(face_top_right_roi, r_eyes, 1.05, 18);
+					for (int j = 0; j < r_eyes.size() && j < 1; j++) {
+						r_eyes[j].x += face_rect.x + top_right_rect.x;
+						r_eyes[j].y += face_rect.y;
+						rectangle(output, r_eyes[j], Scalar(128, 128, 128), 3); // Draw noses roi
+					}
+					/////////////////////
+					// Mouth detection
+					//add if
+					if (r_eyes.size() != 0){
+						//  Mat face_bottom_roi(face_roi, Rect(0,face_rect.height*0.2+noses[0].y-face_rect.y,face_rect.width, face_rect.height*0.8-noses[0].y+face_rect.y));
+						//Mat face_bottom_roi(face_roi, Rect(0,face_rect.height*0.5,face_rect.width, face_rect.height*0.5));
+						//imshow("bottom_roi", face_bottom_roi);
+						vector<Rect> mouths;
+						mouth_cascade.detectMultiScale(face_bottom_roi, mouths, 1.05, 6);
+
+						for (int j = 0; j < mouths.size() && j < 1; j++) {
+							mouths[j].x += face_rect.x;
+							mouths[j].y += face_rect.height*0.26 + noses[0].y;
+
+
+							rectangle(output, mouths[j], Scalar(128, 128, 0), 5); // Draw noses roi
+						}
+
+
+						//                                vector<Rect> mouths2;
+						//                                mouth_cascade.detectMultiScale(face_bottom_roi2, mouths2, 1.1, 20);
+						//
+						//                                for(int j=0; j < mouths2.size() && j < 1; j++) {
+						//                                    mouths2[j].x += face_rect.x;
+						//                                    mouths2[j].y += face_rect.y + face_rect.width/2;
+						//
+						//
+						//                                rectangle(captureFrame, mouths2[j], Scalar(64,64,64), 1); // Draw noses roi
+						//                                }
+
+
+						//bool detectedAll = noses.size() >= 1 && l_eyes.size() >= 1 && r_eyes.size()>=1 && mouths.size() >= 1;
+						//change if from detectedAll
+						if (mouths.size() != 0) {
+							// Update srcImage point
+
+							srcImagePoints.clear();
+
+							srcImagePoints.push_back(cvPoint2D32f(noses[0].x + noses[0].width / 2, noses[0].y + noses[0].height / 2)); // Move nose to top
+							//                      int leftEyeIdx = eyes[0].x < eyes[1].x ? 0 : 1;
+							//                      int rightEyeIdx = leftEyeIdx == 0 ? 1 : 0;
+
+							//                      srcImagePoints.push_back( cvPoint2D32f(eyes[leftEyeIdx].x + eyes[leftEyeIdx].width/2, eyes[leftEyeIdx].y + eyes[leftEyeIdx].height / 2) );
+							//                      srcImagePoints.push_back( cvPoint2D32f(eyes[rightEyeIdx].x + eyes[rightEyeIdx].width/2, eyes[rightEyeIdx].y + eyes[rightEyeIdx].height / 2) );
+							//////////change two above lines ^ to 2 belows line
+							//////////                       |
+							srcImagePoints.push_back(cvPoint2D32f(l_eyes[0].x + l_eyes[0].width / 2, l_eyes[0].y + l_eyes[0].height / 2));
+							srcImagePoints.push_back(cvPoint2D32f(r_eyes[0].x + r_eyes[0].width / 2, r_eyes[0].y + r_eyes[0].height / 2));
+							//////////
+							srcImagePoints.push_back(cvPoint2D32f(mouths[0].x, mouths[0].y + mouths[0].height / 2));
+							srcImagePoints.push_back(cvPoint2D32f(mouths[0].x + mouths[0].width, mouths[0].y + mouths[0].height / 2));
+
+							//Create the POSIT object with the model points
+							positObject = cvCreatePOSITObject(&modelPoints[0], (int)modelPoints.size());
+
+							//Estimate the pose
+							cvPOSIT(positObject, &srcImagePoints[0], FOCAL_LENGTH, criteria, rotation_matrix, translation_vector);
+
+							//Project axes
+							std::vector<CvPoint2D32f> projectedAxesPoints;
+							for (size_t p = 0; p<axesPoints.size(); p++)
+							{
+								CvPoint2D32f point2D = cvPoint2D32f(0.0, 0.0);
+								transformAndProject(axesPoints[p], point2D, rotation_matrix, translation_vector);
+								projectedAxesPoints.push_back(point2D);
+							}
+
+							//Draw the source image points
+							for (size_t p = 0; p<modelPoints.size(); p++)
+								circle(output, cvPoint((int)srcImagePoints[p].x, (int)srcImagePoints[p].y), 8, CV_RGB(255, 0, 0));
+
+
+							//Draw the axes
+							line(output, cvPoint((int)projectedAxesPoints[0].x, (int)projectedAxesPoints[0].y),
+								cvPoint((int)projectedAxesPoints[1].x, (int)projectedAxesPoints[1].y), CV_RGB(0, 0, 255), 2);
+							line(output, cvPoint((int)projectedAxesPoints[0].x, (int)projectedAxesPoints[0].y),
+								cvPoint((int)projectedAxesPoints[2].x, (int)projectedAxesPoints[2].y), CV_RGB(255, 0, 0), 2);
+							line(output, cvPoint((int)projectedAxesPoints[0].x, (int)projectedAxesPoints[0].y),
+								cvPoint((int)projectedAxesPoints[3].x, (int)projectedAxesPoints[3].y), CV_RGB(0, 255, 0), 2);
+
+						}
+					}
+				}
+			}
+		}
+
+		/*
+
 		cv::Mat gray;
 		cvtColor(input, gray, cv::COLOR_BGR2GRAY);
 
@@ -207,6 +373,6 @@ void HeadPose::process(cv::Mat &input, cv::Mat &output)
 					cvPoint((int)projectedAxesPoints[3].x, (int)projectedAxesPoints[3].y), CV_RGB(0, 255, 0), 2);
 
 			}
-		}
+		}*/
 	}
 }
