@@ -21,7 +21,7 @@ HeadPose::~HeadPose(void)
 
 void HeadPose::init(void)
 {
-	face_cascade.load("haarcascade_frontalface_default.xml");
+	face_cascade.load("haar-face.xml");
 	nose_cascade.load("Nariz_nuevo_20stages.xml");
 	left_eye_cascade.load("haar_l_eye.xml");
 	right_eye_cascade.load("haar_r_eye.xml");
