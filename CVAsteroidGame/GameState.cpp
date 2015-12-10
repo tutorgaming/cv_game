@@ -118,6 +118,8 @@ void GameState::createScene()
 	m_bulletDelay = 300;
 
 	m_headMoveScale = 150;
+
+	//Create Mouse Cursor
 	
 
 	/*
@@ -389,10 +391,50 @@ void GameState::moveByHeadPose()
 	Ogre::Vector3 smoothLookPos = m_currentLookPos + 0.02 * (newLookPos - m_currentLookPos);
 
 	m_currentLookPos = smoothLookPos;
-
+	
 	m_pCamera->lookAt(smoothLookPos + camPos);
 
 	m_LastHeadPose = currentRotationMatrix;
+	
+}
+
+//CURSOR CONTROL
+void GameState::moveCursorByHeadPose()
+{
+	
+	float* rotMat = (CVProcess::getInstance().mHeadPose)->getHeadRotationMatrix();
+	Ogre::Matrix3 currentRotationMatrix(
+		rotMat[0], rotMat[1], rotMat[2],
+		rotMat[3], rotMat[4], rotMat[5],
+		rotMat[6], rotMat[7], rotMat[8]); //FIXED STABLE HERE FOR FIXED VIEW
+
+	Ogre::Vector3 camPos = m_pCamera->getPosition();
+
+	Ogre::Vector3 newLookPos;
+	newLookPos.x = rotMat[0] * m_lookPosition.x +
+		rotMat[1] * m_lookPosition.y +
+		rotMat[2] * m_lookPosition.z;
+	newLookPos.y = rotMat[3] * m_lookPosition.x +
+		rotMat[4] * m_lookPosition.y +
+		rotMat[5] * m_lookPosition.z;
+	newLookPos.z = rotMat[6] * m_lookPosition.x +
+		rotMat[7] * m_lookPosition.y +
+		rotMat[8] * m_lookPosition.z;
+
+	newLookPos.z *= -1;
+	//newLookPos.y *= -1;
+	newLookPos.x *= -1;
+
+	Ogre::Vector3 smoothLookPos = m_currentLookPos + 0.02 * (newLookPos - m_currentLookPos);
+
+	m_currentLookPos = smoothLookPos;
+	
+	//m_pCamera->lookAt(smoothLookPos + camPos);
+	OgreFramework::getSingletonPtr()->m_pTrayMgr->getCursorContainer()->setPosition(newLookPos.x,newLookPos.y);
+
+
+	m_LastHeadPose = currentRotationMatrix;
+	
 }
 
 //|||||||||||||||||||||||||||||||||||||||||||||||
@@ -437,9 +479,9 @@ void GameState::update(double timeSinceLastFrame)
             m_pDetailsPanel->setParamValue(5, Ogre::StringConverter::toString(m_pCamera->getDerivedOrientation().y));
             m_pDetailsPanel->setParamValue(6, Ogre::StringConverter::toString(m_pCamera->getDerivedOrientation().z));
 
-			m_pDetailsPanel->setParamValue(7, Ogre::StringConverter::toString(m_shootPos.x));
-            m_pDetailsPanel->setParamValue(8, Ogre::StringConverter::toString(m_shootPos.y));
-			m_pDetailsPanel->setParamValue(9, Ogre::StringConverter::toString(m_currentLookPos - m_pCamera->getPosition()));
+			m_pDetailsPanel->setParamValue(7, Ogre::StringConverter::toString(m_currentLookPos.x));
+            m_pDetailsPanel->setParamValue(8, Ogre::StringConverter::toString(m_currentLookPos.y));
+			m_pDetailsPanel->setParamValue(9, Ogre::StringConverter::toString(m_currentLookPos.z));
             m_pDetailsPanel->setParamValue(10, Ogre::StringConverter::toString(OgreFramework::getSingletonPtr()->m_pViewport->getActualHeight()));
             if(m_bSettingsMode)
                 m_pDetailsPanel->setParamValue(11, "Buffered Input");
@@ -462,7 +504,8 @@ void GameState::update(double timeSinceLastFrame)
 	moveByHeadPosition();
 
 	// Move camera by head pose
-	moveByHeadPose();
+	//moveByHeadPose();
+	moveCursorByHeadPose();
 
 	// Generate meteor
 	checkGenerateMeteor(timeSinceLastFrame);
@@ -509,24 +552,30 @@ void GameState::checkShoot()
 	Ogre::Real m_pViewportHeight = OgreFramework::getSingletonPtr()->m_pViewport->getActualHeight();
 
 	spawnBullet( (m_shootPos.x - m_pViewportWidth / 2) / m_pViewportWidth * 2 * 30 + m_pCamera->getPosition().x
-		, -(m_shootPos.y - m_pViewportHeight / 2) / m_pViewportHeight * 2 * 30 + m_pCamera->getPosition().y);
+		, -(m_shootPos.y - m_pViewportHeight / 2) / m_pViewportHeight * 2 * 30+ m_pCamera->getPosition().y
+);
 }
 
 void GameState::spawnBullet(int xPos, int yPos){
 	//for each(Meteor* m in m_meteorList)
 	Ogre::Vector3 spawnPos = Ogre::Vector3(xPos, yPos, 0);
+
+	Ogre::Vector3 direction = m_currentLookPos-spawnPos + m_pCamera->getPosition();
+	direction.x = -direction.x;
+	direction.y = -direction.y;
+
 	for (auto b:m_bulletList)
 	{
 		if (!b->isActive())
 		{
-			b->reset(xPos,yPos, spawnPos-m_currentLookPos);//Will Be Optimized  to objPool Soon
+			b->reset(xPos,yPos, direction);//Will Be Optimized  to objPool Soon
 			return;
 		}
 	}
 	Bullet *b = new Bullet();
 	m_bulletList.push_back(b);
 	b->setSceneManager(m_pSceneMgr);
-	b->create(xPos,yPos, spawnPos- m_currentLookPos);
+	b->create(xPos,yPos,direction);
 }
 
 void GameState::updateBullet(double timeSinceLastFrame)

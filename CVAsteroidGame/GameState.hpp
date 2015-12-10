@@ -54,6 +54,7 @@ public:
 
 	void moveByHeadPose();
 	void moveByHeadPosition();
+	void moveCursorByHeadPose();
 
 	//Check the Bullet 
 	void checkShoot();
@@ -114,6 +115,8 @@ private:
 
 	//Shoot Pose
 	Ogre::Vector2				m_shootPos;
+	
+
 
 };
 

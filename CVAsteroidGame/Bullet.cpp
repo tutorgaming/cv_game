@@ -59,8 +59,8 @@ void Bullet::reset(int xPos, int yPos, Ogre::Vector3 direction)
 
 	m_pBulletNode->setPosition(Ogre::Vector3(xPos, yPos, 0));
 
-	m_BulletSpeed = direction.normalisedCopy() * 0.9;
-	//m_BulletSpeed = Ogre::Vector3(0.0, 0.0, -0.9);
+	//m_BulletSpeed = direction.normalisedCopy() * 0.9;
+	m_BulletSpeed = Ogre::Vector3(0.0, 0.0, -0.9);
 }
 
 
