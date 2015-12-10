@@ -24,6 +24,8 @@ private:
 	int m_FrameHeight;
 	int m_FrameWidth;
 	Mat faceTemplate, noseTemplate, leftEyeTemplate, rightEyeTemplate, mouthTemplate;
+	Mat lastNoseMatch, lastLeftEyeMatch, lastRightEyeMatch, lastMouthMatch;
+	Rect lastNoseRect, lastLeftEyeRect, lastRightEyeRect, lastMouthRect;
 	bool m_foundFace;
 	int match_method;
 public:
@@ -38,6 +40,8 @@ private:
 	void detectFaceFeatures(Mat &inputImage);
 	void trackFaceFeatures(Mat &inputImage);
 	Rect getMatchingRect(Mat &inputImage, Mat &templateImg);
+	int getDistance2(Rect &rect1, Rect &rect2);
+	Rect getBestMatching(Mat &inputImage, Rect &lastRect, Mat &lastMatch, Mat &oriTemplate);
 
 public:
 	void process(cv::Mat &input, cv::Mat &output);
