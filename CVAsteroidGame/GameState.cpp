@@ -217,6 +217,12 @@ bool GameState::mouseMoved(const OIS::MouseEvent &evt)
 		m_pCamera->pitch(Ogre::Degree(evt.state.Y.rel * -0.1f));
     }
 
+
+	if(m_bLMouseDown)
+	{
+		m_shootPos.x = evt.state.X.abs;
+		m_shootPos.y = evt.state.Y.abs;
+	}
     return true;
 }
 
@@ -228,8 +234,10 @@ bool GameState::mousePressed(const OIS::MouseEvent &evt, OIS::MouseButtonID id)
 
     if(id == OIS::MB_Left)
     {
-        onLeftPressed(evt);
+        //onLeftPressed(evt);
         m_bLMouseDown = true;
+		m_shootPos.x = evt.state.X.abs;
+		m_shootPos.y = evt.state.Y.abs;
     }
     else if(id == OIS::MB_Right)
     {
@@ -387,7 +395,8 @@ void GameState::moveByHeadPose()
 
 void GameState::spawnMeteor()
 {
-	for each(Meteor* m in m_meteorList)
+	//for each(Meteor* m in m_meteorList)
+	for (auto m:m_meteorList)
 	{
 		if (!m->isActive())
 		{
@@ -423,10 +432,15 @@ void GameState::update(double timeSinceLastFrame)
             m_pDetailsPanel->setParamValue(4, Ogre::StringConverter::toString(m_pCamera->getDerivedOrientation().x));
             m_pDetailsPanel->setParamValue(5, Ogre::StringConverter::toString(m_pCamera->getDerivedOrientation().y));
             m_pDetailsPanel->setParamValue(6, Ogre::StringConverter::toString(m_pCamera->getDerivedOrientation().z));
+
+			m_pDetailsPanel->setParamValue(7, Ogre::StringConverter::toString(m_shootPos.x));
+            m_pDetailsPanel->setParamValue(8, Ogre::StringConverter::toString(m_shootPos.y));
+			m_pDetailsPanel->setParamValue(9, Ogre::StringConverter::toString(OgreFramework::getSingletonPtr()->m_pViewport->getActualWidth()));
+            m_pDetailsPanel->setParamValue(10, Ogre::StringConverter::toString(OgreFramework::getSingletonPtr()->m_pViewport->getActualHeight()));
             if(m_bSettingsMode)
-                m_pDetailsPanel->setParamValue(7, "Buffered Input");
+                m_pDetailsPanel->setParamValue(11, "Buffered Input");
             else
-                m_pDetailsPanel->setParamValue(7, "Un-Buffered Input");
+                m_pDetailsPanel->setParamValue(11, "Un-Buffered Input");
         }
     }
 
@@ -447,8 +461,10 @@ void GameState::update(double timeSinceLastFrame)
 
 	// Generate meteor
 	checkGenerateMeteor(timeSinceLastFrame);
+	checkGenerateBullet(timeSinceLastFrame);
 
 	updateMeteor(timeSinceLastFrame);
+	updateBullet(timeSinceLastFrame);
 }
 
 void GameState::checkGenerateMeteor(double timeSinceLastFrame)
@@ -471,12 +487,60 @@ void GameState::randomSpawnDelay()
 
 void GameState::updateMeteor(double timeSinceLastFrame)
 {
-	for each(Meteor* m in m_meteorList)
+	
+	for(auto m : m_meteorList)
+	//for each(Meteor* m in m_meteorList)
 	{
 		if (m->isActive())
 			m->move(timeSinceLastFrame);
 	}
 }
+//|||||||||||||||||||||||||||||||||||||||||||||||
+//BULLET MANAGER
+//|||||||||||||||||||||||||||||||||||||||||||||||
+void GameState::checkShoot()
+{
+	spawnBullet( (m_shootPos.x - OgreFramework::getSingletonPtr()->m_pViewport->getActualWidth() / 2) + m_pCamera->getPosition().x
+		, -(m_shootPos.y - OgreFramework::getSingletonPtr()->m_pViewport->getActualHeight()/2) + m_pCamera->getPosition().y);
+}
+
+void GameState::spawnBullet(int xPos, int yPos){
+	//for each(Meteor* m in m_meteorList)
+	for (auto b:m_bulletList)
+	{
+		if (!b->isActive())
+		{
+			b->reset(xPos,yPos);//Will Be Optimized  to objPool Soon
+			return;
+		}
+	}
+	Bullet *b = new Bullet();
+	m_bulletList.push_back(b);
+	b->setSceneManager(m_pSceneMgr);
+	b->create(xPos,yPos);
+}
+
+void GameState::updateBullet(double timeSinceLastFrame)
+{
+	for(auto b : m_bulletList)
+	{
+		if (b->isActive())
+			b->move(timeSinceLastFrame);
+	}
+	//Collision Detection Will Be Implemented Here
+}
+
+void GameState::checkGenerateBullet(double timeSinceLastFrame)
+{
+	//Will be implement 
+	//Single pulser
+	if(m_bLMouseDown)
+	{
+		checkShoot();
+	}
+}
+
+
 //|||||||||||||||||||||||||||||||||||||||||||||||
 
 void GameState::buildGUI()
@@ -494,15 +558,19 @@ void GameState::buildGUI()
     items.push_back("cam.oX");
     items.push_back("cam.oY");
     items.push_back("cam.oZ");
+	items.push_back("mouseX");
+    items.push_back("mouseY");
+	items.push_back("ActualW");
+    items.push_back("ActualH");
     items.push_back("Mode");
 
     m_pDetailsPanel = OgreFramework::getSingletonPtr()->m_pTrayMgr->createParamsPanel(OgreBites::TL_TOPLEFT, "DetailsPanel", 200, items);
     m_pDetailsPanel->show();
 
-    Ogre::String infoText = "Controls\n[TAB] - Switch input mode\n\n[W] - Forward / Mode up\n[S] - Backwards/ Mode down\n[A] - Left\n";
-    infoText.append("[D] - Right\n\nPress [SHIFT] to move faster\n\n[O] - Toggle FPS / logo\n");
-    infoText.append("[Print] - Take screenshot\n\n[ESC] - Exit");
-    OgreFramework::getSingletonPtr()->m_pTrayMgr->createTextBox(OgreBites::TL_RIGHT, "InfoPanel", infoText, 300, 220);
+  //  Ogre::String infoText = "Controls\n[TAB] - Switch input mode\n\n[W] - Forward / Mode up\n[S] - Backwards/ Mode down\n[A] - Left\n";
+   // infoText.append("[D] - Right\n\nPress [SHIFT] to move faster\n\n[O] - Toggle FPS / logo\n");
+   // infoText.append("[Print] - Take screenshot\n\n[ESC] - Exit");
+   // OgreFramework::getSingletonPtr()->m_pTrayMgr->createTextBox(OgreBites::TL_RIGHT, "InfoPanel", infoText, 300, 220);
 
     Ogre::StringVector displayModes;
     displayModes.push_back("Solid mode");
