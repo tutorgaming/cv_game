@@ -4,6 +4,7 @@
 
 
 //---------------------------------------------------------------------------
+using namespace cv;
 
 class HeadPose
 {
@@ -22,6 +23,9 @@ private:
 	CvPoint2D32f m_lastHeadPosition;
 	int m_FrameHeight;
 	int m_FrameWidth;
+	Mat faceTemplate, noseTemplate, leftEyeTemplate, rightEyeTemplate, mouthTemplate;
+	bool m_foundFace;
+	int match_method;
 public:
 
 	HeadPose(void);
@@ -29,6 +33,11 @@ public:
 	void init(void);
 	float* getHeadRotationMatrix(void);
 	float* getHeadPosition();
+
+private:
+	void detectFaceFeatures(Mat &inputImage);
+	void trackFaceFeatures(Mat &inputImage);
+	Rect getMatchingRect(Mat &inputImage, Mat &templateImg);
 
 public:
 	void process(cv::Mat &input, cv::Mat &output);
