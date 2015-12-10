@@ -13,6 +13,7 @@
 #include <OgreMaterialManager.h>
 
 #include "Meteor.hpp"
+#include "Bullet.hpp"
 
 //|||||||||||||||||||||||||||||||||||||||||||||||
 
@@ -54,12 +55,18 @@ public:
 	void moveByHeadPose();
 	void moveByHeadPosition();
 
+	void checkShoot();
+
 	void update(double timeSinceLastFrame);
 
 	void spawnMeteor();
 	void updateMeteor(double timeSinceLastFrame);
 	void checkGenerateMeteor(double timeSinceLastFrame);
 	void randomSpawnDelay();
+
+	void spawnBullet(int xPos, int yPos);
+	void updateBullet(double timeSinceLastFrame);
+	void checkGenerateBullet(double timeSinceLastFrame);
 
 private:
 	Ogre::SceneNode*			m_pOgreHeadNode;
@@ -88,6 +95,7 @@ private:
 	float						m_spawnMaxDelay;
 
 	std::vector<Meteor*>			m_meteorList;
+	std::vector<Bullet*>			m_bulletList;
 
 	// Camera
 	Ogre::Vector3				m_lookPosition;
@@ -98,6 +106,8 @@ private:
 	Ogre::Vector3				m_currentLookPos;
 	float						m_headMoveScale;
 
+	// Shoot Pose
+	Ogre::Vector2				m_shootPos;
 };
 
 //|||||||||||||||||||||||||||||||||||||||||||||||
