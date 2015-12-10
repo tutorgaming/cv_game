@@ -97,6 +97,9 @@ private:
 	float						m_spawnMinDelay;
 	float						m_spawnMaxDelay;
 
+	float						m_bulletElapsedTime;
+	float						m_bulletDelay;
+
 	std::vector<Bullet*>		m_bulletList;
 	std::vector<Meteor*>		m_meteorList;
 

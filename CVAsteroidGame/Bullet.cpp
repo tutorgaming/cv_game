@@ -16,7 +16,7 @@ Bullet::~Bullet(void)
 	m_pSceneMgr->getRootSceneNode()->removeChild(m_pBulletNode);
 }
 
-void Bullet::create(int xPos, int yPos)
+void Bullet::create(int xPos, int yPos, Ogre::Vector3 direction)
 {
 	// Create the entity
 	m_pBulletEntity = m_pSceneMgr->createEntity("Cube02.mesh");
@@ -32,12 +32,11 @@ void Bullet::create(int xPos, int yPos)
 	m_pBulletNode->yaw(Ogre::Radian(Ogre::Degree(90)));
 
 
-	reset(xPos, yPos);
+	reset(xPos, yPos, direction);
 
 	m_BulletOrientation = 0.0;
 	m_BulletAcceleration = 0.001;
 	m_BulletMaxSpeed = 0.9;
-	m_BulletSpeed = Ogre::Vector3(0.0, 0.0, -0.9);
 	m_BulletRotateSpeed = 0.2;
 	m_BulletRotation = 0.0;
 
@@ -53,12 +52,15 @@ void Bullet::die()
 	m_active_flag = false;
 }
 
-void Bullet::reset(int xPos, int yPos)
+void Bullet::reset(int xPos, int yPos, Ogre::Vector3 direction)
 {
 	m_pBulletNode->setVisible(true);
 	m_active_flag = true;
 
 	m_pBulletNode->setPosition(Ogre::Vector3(xPos, yPos, 0));
+
+	m_BulletSpeed = direction.normalisedCopy() * 0.9;
+	//m_BulletSpeed = Ogre::Vector3(0.0, 0.0, -0.9);
 }
 
 

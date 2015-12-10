@@ -14,9 +14,9 @@ public:
 
 	void move(double timeSinceLastFrame);
 	void setSceneManager(Ogre::SceneManager*		pSceneMgr){ m_pSceneMgr = pSceneMgr; }
-	void create(int xPos, int yPos);
+	void create(int xPos, int yPos, Ogre::Vector3 direction);
 	void die();
-	void reset(int xPos, int yPos);
+	void reset(int xPos, int yPos, Ogre::Vector3 direction);
 	bool isActive(){ return m_active_flag; }
 
 	void setGameField(Ogre::Real x, Ogre::Real y){ m_fieldX = x; m_fieldY = y; }

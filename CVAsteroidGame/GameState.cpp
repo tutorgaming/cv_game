@@ -114,6 +114,9 @@ void GameState::createScene()
 	randomSpawnDelay();
 	m_spawnElapsedTime = 0;
 
+	m_bulletElapsedTime = 0;
+	m_bulletDelay = 300;
+
 	m_headMoveScale = 150;
 	
 
@@ -236,6 +239,7 @@ bool GameState::mousePressed(const OIS::MouseEvent &evt, OIS::MouseButtonID id)
     {
         //onLeftPressed(evt);
         m_bLMouseDown = true;
+		m_bulletElapsedTime = 0;
 		m_shootPos.x = evt.state.X.abs;
 		m_shootPos.y = evt.state.Y.abs;
     }
@@ -348,7 +352,7 @@ void GameState::moveByHeadPose()
 	Ogre::Matrix3 currentRotationMatrix(
 		rotMat[0], rotMat[1], rotMat[2],
 		rotMat[3], rotMat[4], rotMat[5],
-		rotMat[6], rotMat[7], rotMat[8]);
+		rotMat[6], rotMat[7], rotMat[8]); //FIXED STABLE HERE FOR FIXED VIEW
 
 	Ogre::Vector3 camPos = m_pCamera->getPosition();
 
@@ -382,7 +386,7 @@ void GameState::moveByHeadPose()
 	//m_pCamera->setOrientation(Ogre::Quaternion(currentRotationMatrix));
 
 
-	Ogre::Vector3 smoothLookPos = m_currentLookPos + 0.2 * (newLookPos - m_currentLookPos);
+	Ogre::Vector3 smoothLookPos = m_currentLookPos + 0.02 * (newLookPos - m_currentLookPos);
 
 	m_currentLookPos = smoothLookPos;
 
@@ -435,7 +439,7 @@ void GameState::update(double timeSinceLastFrame)
 
 			m_pDetailsPanel->setParamValue(7, Ogre::StringConverter::toString(m_shootPos.x));
             m_pDetailsPanel->setParamValue(8, Ogre::StringConverter::toString(m_shootPos.y));
-			m_pDetailsPanel->setParamValue(9, Ogre::StringConverter::toString(OgreFramework::getSingletonPtr()->m_pViewport->getActualWidth()));
+			m_pDetailsPanel->setParamValue(9, Ogre::StringConverter::toString(m_currentLookPos - m_pCamera->getPosition()));
             m_pDetailsPanel->setParamValue(10, Ogre::StringConverter::toString(OgreFramework::getSingletonPtr()->m_pViewport->getActualHeight()));
             if(m_bSettingsMode)
                 m_pDetailsPanel->setParamValue(11, "Buffered Input");
@@ -451,7 +455,8 @@ void GameState::update(double timeSinceLastFrame)
 	
 
     getInput();
-    moveCamera();
+    
+	moveCamera();
 	
 
 	moveByHeadPosition();
@@ -500,24 +505,28 @@ void GameState::updateMeteor(double timeSinceLastFrame)
 //|||||||||||||||||||||||||||||||||||||||||||||||
 void GameState::checkShoot()
 {
-	spawnBullet( (m_shootPos.x - OgreFramework::getSingletonPtr()->m_pViewport->getActualWidth() / 2) + m_pCamera->getPosition().x
-		, -(m_shootPos.y - OgreFramework::getSingletonPtr()->m_pViewport->getActualHeight()/2) + m_pCamera->getPosition().y);
+	Ogre::Real m_pViewportWidth = OgreFramework::getSingletonPtr()->m_pViewport->getActualWidth();
+	Ogre::Real m_pViewportHeight = OgreFramework::getSingletonPtr()->m_pViewport->getActualHeight();
+
+	spawnBullet( (m_shootPos.x - m_pViewportWidth / 2) / m_pViewportWidth * 2 * 30 + m_pCamera->getPosition().x
+		, -(m_shootPos.y - m_pViewportHeight / 2) / m_pViewportHeight * 2 * 30 + m_pCamera->getPosition().y);
 }
 
 void GameState::spawnBullet(int xPos, int yPos){
 	//for each(Meteor* m in m_meteorList)
+	Ogre::Vector3 spawnPos = Ogre::Vector3(xPos, yPos, 0);
 	for (auto b:m_bulletList)
 	{
 		if (!b->isActive())
 		{
-			b->reset(xPos,yPos);//Will Be Optimized  to objPool Soon
+			b->reset(xPos,yPos, spawnPos-m_currentLookPos);//Will Be Optimized  to objPool Soon
 			return;
 		}
 	}
 	Bullet *b = new Bullet();
 	m_bulletList.push_back(b);
 	b->setSceneManager(m_pSceneMgr);
-	b->create(xPos,yPos);
+	b->create(xPos,yPos, spawnPos- m_currentLookPos);
 }
 
 void GameState::updateBullet(double timeSinceLastFrame)
@@ -536,7 +545,13 @@ void GameState::checkGenerateBullet(double timeSinceLastFrame)
 	//Single pulser
 	if(m_bLMouseDown)
 	{
-		checkShoot();
+		m_bulletElapsedTime += (float)timeSinceLastFrame;
+		if (m_bulletElapsedTime >= m_bulletDelay)
+		{
+			m_bulletElapsedTime = 0;
+			for (int i = 0; i < 3; i++)
+				checkShoot();
+		}
 	}
 }
 
