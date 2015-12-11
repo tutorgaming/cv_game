@@ -170,6 +170,8 @@ void HeadPose::detectFaceFeatures(Mat &inputImage)
 
 							lastMouthMatch = mouthTemplate.clone();
 							lastMouthRect = mouthRect;
+
+							distThreshold = (inputImage.cols*inputImage.cols + inputImage.rows*inputImage.rows) / 1280;
 						}
 					}
 				}
@@ -191,7 +193,7 @@ Rect HeadPose::getBestMatching(Mat &inputImage, Rect &lastRect, Mat &lastMatch, 
 {
 	Rect newRect = getMatchingRect(inputImage, oriTemplate);
 	int dist = getDistance2(newRect, lastRect);
-	if (dist > 500)
+	if (dist > distThreshold)
 	{
 		// Incorrect, get nearest to last match
 		newRect = getMatchingRect(inputImage, lastMatch);

@@ -28,6 +28,7 @@ private:
 	Rect lastNoseRect, lastLeftEyeRect, lastRightEyeRect, lastMouthRect;
 	bool m_foundFace;
 	int match_method;
+	double distThreshold;
 public:
 
 	HeadPose(void);
