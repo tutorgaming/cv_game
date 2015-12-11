@@ -21,6 +21,7 @@ public:
 	bool isIn(Ogre::Vector3 point);
 
 	void setGameField(Ogre::Real x, Ogre::Real y){ m_fieldX = x; m_fieldY = y; }
+	Ogre::Vector3 getPosition() { return m_pMeteorNode->getPosition(); };
 private:
 	Ogre::Entity*			m_pMeteorEntity;
 	Ogre::SceneNode*		m_pMeteorNode;

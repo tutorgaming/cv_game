@@ -26,8 +26,7 @@ void Bullet::create(int xPos, int yPos, Ogre::Vector3 direction)
 
 	//m_BulletInfo.mpNode = m_pBulletNode;
 
-
-	m_pBulletNode->setScale(3, 3, 3);
+	m_pBulletNode->setScale(1, 1, 1);
 	m_pBulletNode->pitch(Ogre::Radian(Ogre::Degree(90)));
 	m_pBulletNode->yaw(Ogre::Radian(Ogre::Degree(90)));
 
@@ -89,9 +88,10 @@ void Bullet::move(double timeSinceLastFrame)
 
 }
 
-void Bullet::getPoint(std::vector<Ogre::Vector3>& v)
+void Bullet::getPoint(const Ogre::Vector3* v)
 {
-	Ogre::Vector3 position = m_pBulletNode->getPosition();
+	v = m_pBulletEntity->getWorldBoundingBox(true).getAllCorners();
+	/*Ogre::Vector3 position = m_pBulletNode->getPosition();
 	Ogre::Vector3 size = m_pBulletEntity->getBoundingBox().getSize();
 
 	v.push_back(Ogre::Vector3(position.x + size.x / 2, position.y + size.y / 2, position.z + size.z / 2));
@@ -101,5 +101,5 @@ void Bullet::getPoint(std::vector<Ogre::Vector3>& v)
 	v.push_back(Ogre::Vector3(position.x - size.x / 2, position.y + size.y / 2, position.z + size.z / 2));
 	v.push_back(Ogre::Vector3(position.x - size.x / 2, position.y + size.y / 2, position.z - size.z / 2));
 	v.push_back(Ogre::Vector3(position.x - size.x / 2, position.y - size.y / 2, position.z + size.z / 2));
-	v.push_back(Ogre::Vector3(position.x - size.x / 2, position.y - size.y / 2, position.z - size.z / 2));
+	v.push_back(Ogre::Vector3(position.x - size.x / 2, position.y - size.y / 2, position.z - size.z / 2));*/
 }

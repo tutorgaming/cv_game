@@ -255,7 +255,7 @@ bool GameState::mousePressed(const OIS::MouseEvent &evt, OIS::MouseButtonID id)
     {
         //onLeftPressed(evt);
         m_bLMouseDown = true;
-		m_bulletElapsedTime = 0;
+		m_bulletElapsedTime = 400;
 		m_shootPos.x = mousePosition.x;
 		m_shootPos.y = mousePosition.y;
     }
@@ -530,7 +530,7 @@ void GameState::update(double timeSinceLastFrame)
 
 			m_pDetailsPanel->setParamValue(7, Ogre::StringConverter::toString(mousePosition.x));
 			m_pDetailsPanel->setParamValue(8, Ogre::StringConverter::toString(mousePosition.y));
-			m_pDetailsPanel->setParamValue(9, Ogre::StringConverter::toString(mousePosition.z));
+			m_pDetailsPanel->setParamValue(9, Ogre::StringConverter::toString(m_score));
             m_pDetailsPanel->setParamValue(10, Ogre::StringConverter::toString(OgreFramework::getSingletonPtr()->m_pViewport->getActualHeight()));
             if(m_bSettingsMode)
                 m_pDetailsPanel->setParamValue(11, "Buffered Input");
@@ -640,7 +640,10 @@ void GameState::updateBullet(double timeSinceLastFrame)
 				{
 					upScore();
 					m->die();
+					
 					b->die();
+					
+					break;
 				}
 			}
 		}
@@ -658,8 +661,7 @@ void GameState::checkGenerateBullet(double timeSinceLastFrame)
 		if (m_bulletElapsedTime >= m_bulletDelay)
 		{
 			m_bulletElapsedTime = 0;
-			for (int i = 0; i < 3; i++)
-				checkShoot();
+			checkShoot();
 		}
 	}
 }
@@ -669,21 +671,25 @@ void GameState::checkGenerateBullet(double timeSinceLastFrame)
 //|||||||||||||||||||||||||||||||||||||||||||||||
 bool GameState::isIntersect(Meteor* m, Bullet* b)
 {
-	std::vector<Ogre::Vector3> allCheckPoint;
+	Ogre::Vector3 p1 = m->getPosition();
+	Ogre::Vector3 p2 = b->getPosition();
+	return abs(p1.x - p2.x) < 10 && abs(p1.y - p2.y) < 10 && abs(p1.z - p2.z) < 10;
+	/*Ogre::Vector3* allCheckPoint;
 	b->getPoint(allCheckPoint);
-	for (auto p : allCheckPoint)
+	for (size_t i = 0; i < 8; i++)
 	{
+		Ogre::Vector3 p = allCheckPoint[i];
 		if (m->isIn(p))
 			return true;
 	}
-	return false;
+	return false;*/
 }
 
 void GameState::upScore()
 {
 	int minScore = 500;
 	int maxScore = 1000;
-	int scoreRand = (int)(Ogre::Math::UnitRandom() * maxScore-minScore) - minScore;
+	int scoreRand = (int)(Ogre::Math::UnitRandom() * (maxScore-minScore)) + minScore;
 
 	m_score += scoreRand;
 }
@@ -708,7 +714,7 @@ void GameState::buildGUI()
     items.push_back("cam.oZ");
 	items.push_back("mouseX");
     items.push_back("mouseY");
-	items.push_back("ActualW");
+	items.push_back("score");
     items.push_back("ActualH");
     items.push_back("Mode");
 
