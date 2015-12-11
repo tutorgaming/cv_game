@@ -116,7 +116,8 @@ private:
 	//Shoot Pose
 	Ogre::Vector2				m_shootPos;
 	
-
+	//Cursor Position
+	Ogre::Vector3				mousePosition;
 
 };
 

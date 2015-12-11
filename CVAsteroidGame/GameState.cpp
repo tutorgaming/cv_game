@@ -30,6 +30,7 @@ GameState::GameState()
 
 	m_lookPosition = Ogre::Vector3(0, 0, -20);
 	m_currentLookPos = m_lookPosition;
+
 }
 
 //|||||||||||||||||||||||||||||||||||||||||||||||
@@ -429,8 +430,40 @@ void GameState::moveCursorByHeadPose()
 
 	m_currentLookPos = smoothLookPos;
 	
+	//Ogre::Vector3 *mousePosition = new Ogre::Vector3(m_currentLookPos.x,-m_currentLookPos.y,0.0f);
+	//Receiving 
+	mousePosition.x = m_currentLookPos.x;
+	mousePosition.y = -m_currentLookPos.y;
+	mousePosition.z = 0.0f;
+
+	//Scale
+	mousePosition.x *= 80;
+	mousePosition.x *= 160;
+	//Move Axis
+	mousePosition.x = mousePosition.x + (OgreFramework::getSingletonPtr()->m_pViewport->getActualWidth()/2);
+	mousePosition.y = mousePosition.y + (OgreFramework::getSingletonPtr()->m_pViewport->getActualHeight()/2);
+
+	//Boundary
+	if( mousePosition.x >= OgreFramework::getSingletonPtr()->m_pViewport->getActualWidth()){
+		mousePosition.x = OgreFramework::getSingletonPtr()->m_pViewport->getActualWidth();
+	}
+	if( mousePosition.x < 0){
+		mousePosition.x = 0;
+	}
+	if( mousePosition.y >= OgreFramework::getSingletonPtr()->m_pViewport->getActualHeight()){
+		mousePosition.y = OgreFramework::getSingletonPtr()->m_pViewport->getActualHeight();
+	}
+	if( mousePosition.y < 0){
+		mousePosition.y = 0;
+	}
+
 	//m_pCamera->lookAt(smoothLookPos + camPos);
-	OgreFramework::getSingletonPtr()->m_pTrayMgr->getCursorContainer()->setPosition(newLookPos.x,newLookPos.y);
+	OgreFramework::getSingletonPtr()->
+		m_pTrayMgr->getCursorContainer()->
+		setPosition(
+			mousePosition.x 
+			,mousePosition.y
+		);
 
 
 	m_LastHeadPose = currentRotationMatrix;
@@ -479,8 +512,8 @@ void GameState::update(double timeSinceLastFrame)
             m_pDetailsPanel->setParamValue(5, Ogre::StringConverter::toString(m_pCamera->getDerivedOrientation().y));
             m_pDetailsPanel->setParamValue(6, Ogre::StringConverter::toString(m_pCamera->getDerivedOrientation().z));
 
-			m_pDetailsPanel->setParamValue(7, Ogre::StringConverter::toString(m_currentLookPos.x));
-            m_pDetailsPanel->setParamValue(8, Ogre::StringConverter::toString(m_currentLookPos.y));
+			m_pDetailsPanel->setParamValue(7, Ogre::StringConverter::toString(mousePosition.x ));
+            m_pDetailsPanel->setParamValue(8, Ogre::StringConverter::toString(mousePosition.y ));
 			m_pDetailsPanel->setParamValue(9, Ogre::StringConverter::toString(m_currentLookPos.z));
             m_pDetailsPanel->setParamValue(10, Ogre::StringConverter::toString(OgreFramework::getSingletonPtr()->m_pViewport->getActualHeight()));
             if(m_bSettingsMode)
