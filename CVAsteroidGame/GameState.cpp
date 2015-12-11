@@ -31,6 +31,9 @@ GameState::GameState()
 	m_lookPosition = Ogre::Vector3(0, 0, -20);
 	m_currentLookPos = m_lookPosition;
 
+	m_crossOffsetX = 0;
+	m_crossOffsetY = 0;
+
 }
 
 //|||||||||||||||||||||||||||||||||||||||||||||||
@@ -122,6 +125,9 @@ void GameState::createScene()
 
 	//Create Mouse Cursor
 	
+	m_score = 0;
+	m_hitPoint = 100;
+	m_manaPoint = 0;
 
 	/*
 	m_pSceneMgr->getEntity("Cube01")->setQueryFlags(CUBE_MASK);
@@ -141,7 +147,7 @@ void GameState::createScene()
     m_pOgreHeadMatHigh->getTechnique(0)->getPass(0)->setAmbient(1, 0, 0);
     m_pOgreHeadMatHigh->getTechnique(0)->getPass(0)->setDiffuse(1, 0, 0, 0);
 	*/
-
+	
 	m_pSceneMgr->setSkyBox(true, "SkyBox/Space", 1000);
 }
 
@@ -171,6 +177,13 @@ bool GameState::keyPressed(const OIS::KeyEvent &keyEventRef)
         pushAppState(findByName("PauseState"));
         return true;
     }
+
+	// Press spacebar to calibrate crosshair
+	if (OgreFramework::getSingletonPtr()->m_pKeyboard->isKeyDown(OIS::KC_SPACE))
+	{
+		calibrateCrossHair();
+		return true;
+	}
 
     if(OgreFramework::getSingletonPtr()->m_pKeyboard->isKeyDown(OIS::KC_I))
     {
@@ -226,8 +239,8 @@ bool GameState::mouseMoved(const OIS::MouseEvent &evt)
 
 	if(m_bLMouseDown)
 	{
-		m_shootPos.x = evt.state.X.abs;
-		m_shootPos.y = evt.state.Y.abs;
+		m_shootPos.x = mousePosition.x;
+		m_shootPos.y = mousePosition.y;
 	}
     return true;
 }
@@ -243,8 +256,8 @@ bool GameState::mousePressed(const OIS::MouseEvent &evt, OIS::MouseButtonID id)
         //onLeftPressed(evt);
         m_bLMouseDown = true;
 		m_bulletElapsedTime = 0;
-		m_shootPos.x = evt.state.X.abs;
-		m_shootPos.y = evt.state.Y.abs;
+		m_shootPos.x = mousePosition.x;
+		m_shootPos.y = mousePosition.y;
     }
     else if(id == OIS::MB_Right)
     {
@@ -337,6 +350,15 @@ void GameState::getInput()
     }
 }
 //|||||||||||||||||||||||||||||||||||||||||||||||
+
+void GameState::calibrateCrossHair()
+{
+	float* lookPosition = (CVProcess::getInstance().mHeadPose)->getLookPosition();
+	int x = (int)(lookPosition[0] * OgreFramework::getSingletonPtr()->m_pViewport->getActualWidth() + OgreFramework::getSingletonPtr()->m_pViewport->getActualWidth() * 0.5f);
+	int y = (int)(lookPosition[1] * OgreFramework::getSingletonPtr()->m_pViewport->getActualHeight() * 2 + OgreFramework::getSingletonPtr()->m_pViewport->getActualHeight() * 0.5f);
+	m_crossOffsetX = OgreFramework::getSingletonPtr()->m_pViewport->getActualWidth() * 0.5f - x;
+	m_crossOffsetY = OgreFramework::getSingletonPtr()->m_pViewport->getActualHeight() * 0.5f - y;
+}
 
 void GameState::moveByHeadPosition()
 {
@@ -432,9 +454,11 @@ void GameState::moveCursorByHeadPose()
 	
 	//Ogre::Vector3 *mousePosition = new Ogre::Vector3(m_currentLookPos.x,-m_currentLookPos.y,0.0f);
 	//Receiving 
-	mousePosition.x = m_currentLookPos.x;
-	mousePosition.y = -m_currentLookPos.y;
+	float* lookPosition = (CVProcess::getInstance().mHeadPose)->getLookPosition();
+	mousePosition.x = lookPosition[0] * OgreFramework::getSingletonPtr()->m_pViewport->getActualWidth()  + OgreFramework::getSingletonPtr()->m_pViewport->getActualWidth() * 0.5f + m_crossOffsetX;
+	mousePosition.y = lookPosition[1] * OgreFramework::getSingletonPtr()->m_pViewport->getActualHeight() * 2 + OgreFramework::getSingletonPtr()->m_pViewport->getActualHeight() * 0.5f + +m_crossOffsetY;
 	mousePosition.z = 0.0f;
+
 
 	//Scale
 	mousePosition.x *= 40;
@@ -461,8 +485,8 @@ void GameState::moveCursorByHeadPose()
 	OgreFramework::getSingletonPtr()->
 		m_pTrayMgr->getCursorContainer()->
 		setPosition(
-			mousePosition.x 
-			,mousePosition.y
+		mousePosition.x
+		, mousePosition.y
 		);
 	
 
@@ -512,9 +536,9 @@ void GameState::update(double timeSinceLastFrame)
             m_pDetailsPanel->setParamValue(5, Ogre::StringConverter::toString(m_pCamera->getDerivedOrientation().y));
             m_pDetailsPanel->setParamValue(6, Ogre::StringConverter::toString(m_pCamera->getDerivedOrientation().z));
 
-			m_pDetailsPanel->setParamValue(7, Ogre::StringConverter::toString(mousePosition.x ));
-            m_pDetailsPanel->setParamValue(8, Ogre::StringConverter::toString(mousePosition.y ));
-			m_pDetailsPanel->setParamValue(9, Ogre::StringConverter::toString(m_currentLookPos.z));
+			m_pDetailsPanel->setParamValue(7, Ogre::StringConverter::toString(mousePosition.x));
+			m_pDetailsPanel->setParamValue(8, Ogre::StringConverter::toString(mousePosition.y));
+			m_pDetailsPanel->setParamValue(9, Ogre::StringConverter::toString(mousePosition.z));
             m_pDetailsPanel->setParamValue(10, Ogre::StringConverter::toString(OgreFramework::getSingletonPtr()->m_pViewport->getActualHeight()));
             if(m_bSettingsMode)
                 m_pDetailsPanel->setParamValue(11, "Buffered Input");
@@ -616,7 +640,18 @@ void GameState::updateBullet(double timeSinceLastFrame)
 	for(auto b : m_bulletList)
 	{
 		if (b->isActive())
+		{
 			b->move(timeSinceLastFrame);
+			for (auto m : m_meteorList)
+			{
+				if (m->isActive() && isIntersect(m, b))
+				{
+					upScore();
+					m->die();
+					b->die();
+				}
+			}
+		}
 	}
 	//Collision Detection Will Be Implemented Here
 }
@@ -635,6 +670,30 @@ void GameState::checkGenerateBullet(double timeSinceLastFrame)
 				checkShoot();
 		}
 	}
+}
+
+//|||||||||||||||||||||||||||||||||||||||||||||||
+//GAME MANAGER
+//|||||||||||||||||||||||||||||||||||||||||||||||
+bool GameState::isIntersect(Meteor* m, Bullet* b)
+{
+	std::vector<Ogre::Vector3> allCheckPoint;
+	b->getPoint(allCheckPoint);
+	for (auto p : allCheckPoint)
+	{
+		if (m->isIn(p))
+			return true;
+	}
+	return false;
+}
+
+void GameState::upScore()
+{
+	int minScore = 500;
+	int maxScore = 1000;
+	int scoreRand = (int)(Ogre::Math::UnitRandom() * maxScore-minScore) - minScore;
+
+	m_score += scoreRand;
 }
 
 

@@ -18,6 +18,7 @@ public:
 	void die();
 	void reset();
 	bool isActive(){ return m_active_flag; }
+	bool isIn(Ogre::Vector3 point);
 
 	void setGameField(Ogre::Real x, Ogre::Real y){ m_fieldX = x; m_fieldY = y; }
 private:

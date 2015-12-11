@@ -76,15 +76,15 @@ void Meteor::move(double timeSinceLastFrame)
 	//Are we out of the Game Field?
 	Ogre::Vector3	position = m_pMeteorNode->getPosition();
 
-	if (position.x > m_fieldX)	position.x = -m_fieldX;
-	if (position.x < -m_fieldX)	position.x = m_fieldX;
-	if (position.y > m_fieldY)	position.y = -m_fieldY;
-	if (position.y < -m_fieldY)	position.y = m_fieldY;
+	if (position.x > m_fieldX)	position.x = m_fieldX;
+	if (position.x < -m_fieldX)	position.x = -m_fieldX;
+	if (position.y > m_fieldY)	position.y = m_fieldY;
+	if (position.y < -m_fieldY)	position.y = -m_fieldY;
 	if (position.z > m_fieldZ)	{
 		die();
 	}
 	if (position.z < -m_fieldZ)	{
-		position.z = m_fieldZ;
+		position.z = -m_fieldZ;
 		
 	}
 	if (position != m_pMeteorNode->getPosition())
@@ -113,3 +113,13 @@ Meteor::Meteor(Ogre::SceneManager* m_pSceneMgr){
 }
 */
 
+bool Meteor::isIn(Ogre::Vector3 point)
+{
+	Ogre::Vector3 size = m_pMeteorEntity->getBoundingBox().getSize();
+
+	Ogre::Vector3 position = m_pMeteorNode->getPosition();
+
+	return position.x - size.x / 2 <= point.x && point.x <= position.x + size.x / 2 &&
+		position.y - size.y / 2 <= point.y && point.y <= position.y + size.y / 2 &&
+		position.z - size.z / 2 <= point.z && point.z <= position.z + size.z / 2 ;
+}

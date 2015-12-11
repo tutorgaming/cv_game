@@ -29,20 +29,22 @@ private:
 	bool m_foundFace;
 	int match_method;
 	double distThreshold;
+	float* lookPosition;
+	KalmanFilter KF;
 public:
-
 	HeadPose(void);
 	virtual ~HeadPose(void);
 	void init(void);
 	float* getHeadRotationMatrix(void);
 	float* getHeadPosition();
+	float* getLookPosition();
 
 private:
 	void detectFaceFeatures(Mat &inputImage);
 	void trackFaceFeatures(Mat &inputImage);
 	Rect getMatchingRect(Mat &inputImage, Mat &templateImg);
 	int getDistance2(Rect &rect1, Rect &rect2);
-	Rect getBestMatching(Mat &inputImage, Rect &lastRect, Mat &lastMatch, Mat &oriTemplate);
+	Rect getBestMatching(Mat &inputImage, Rect &lastRect, Mat &lastMatch, Mat &oriTemplate );
 
 public:
 	void process(cv::Mat &input, cv::Mat &output);
