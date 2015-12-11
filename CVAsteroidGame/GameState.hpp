@@ -132,8 +132,11 @@ private:
 	int							m_score;
 	int							m_hitPoint;
 	int							m_maxHitPoint;
-	int							m_manaPoint;
 	int							m_damagePerHit;
+	int							m_manaPoint;
+	int							m_manaPerShot;
+	int							m_manaPerTime;
+	int							m_maxManaPoint;
 	bool						m_isAlive;
 
 	//Cursor Position

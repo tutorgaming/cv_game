@@ -117,20 +117,21 @@ void GameState::createScene()
 	m_spawnMinDelay = 500;
 	randomSpawnDelay();
 	m_spawnElapsedTime = 0;
-
-	m_bulletElapsedTime = 0;
 	m_bulletDelay = 300;
+	m_bulletElapsedTime = 0;
 
 	m_headMoveScale = 150;
 
 	//Create Mouse Cursor
 	
 	m_score = 0;
-	m_maxHitPoint = 1000;
 	m_hitPoint = m_maxHitPoint;
-	m_manaPoint = 0;
+	m_manaPoint = m_maxManaPoint;
+	m_maxHitPoint = 1000;
 	m_damagePerHit = 200;
-
+	m_manaPerShot = 200;
+	m_manaPerTime = 50;
+	m_maxManaPoint = 1000;
 	m_isAlive = true;
 
 	/*
@@ -536,7 +537,8 @@ void GameState::update(double timeSinceLastFrame)
 			m_pDetailsPanel->setParamValue(8, Ogre::StringConverter::toString(mousePosition.y));
 			m_pDetailsPanel->setParamValue(9, Ogre::StringConverter::toString(m_score));
 			m_pDetailsPanel->setParamValue(10, Ogre::StringConverter::toString(m_hitPoint) + "/" + Ogre::StringConverter::toString(m_maxHitPoint));
-            if(m_bSettingsMode)
+			m_pDetailsPanel->setParamValue(11, Ogre::StringConverter::toString(m_manaPoint) + "/" + Ogre::StringConverter::toString(m_maxManaPoint));
+			if(m_bSettingsMode)
                 m_pDetailsPanel->setParamValue(11, "Buffered Input");
             else
                 m_pDetailsPanel->setParamValue(11, "Un-Buffered Input");
@@ -667,12 +669,21 @@ void GameState::checkGenerateBullet(double timeSinceLastFrame)
 	//Single pulser
 	if(m_bLMouseDown)
 	{
-		m_bulletElapsedTime += (float)timeSinceLastFrame;
-		if (m_bulletElapsedTime >= m_bulletDelay)
+		if (m_manaPoint >= m_manaPerShot)
 		{
-			m_bulletElapsedTime = 0;
-			checkShoot();
+			m_bulletElapsedTime += (float)timeSinceLastFrame;
+			if (m_bulletElapsedTime >= m_bulletDelay)
+			{
+				m_bulletElapsedTime = 0;
+				checkShoot();
+				m_manaPoint -= m_manaPerShot;
+				m_manaPoint = m_manaPoint <= 0 ? 0 : m_manaPoint;
+			}
 		}
+	}
+	else{
+		m_manaPoint += (int)(m_manaPerTime * (float)timeSinceLastFrame);
+		m_manaPoint = m_manaPoint > m_maxManaPoint ? m_maxManaPoint : m_manaPoint;
 	}
 }
 
@@ -741,7 +752,8 @@ void GameState::buildGUI()
 	items.push_back("mouseX");
     items.push_back("mouseY");
 	items.push_back("score");
-    items.push_back("HP");
+	items.push_back("HP");
+	items.push_back("MP");
     items.push_back("Mode");
 
     m_pDetailsPanel = OgreFramework::getSingletonPtr()->m_pTrayMgr->createParamsPanel(OgreBites::TL_TOPLEFT, "DetailsPanel", 200, items);
