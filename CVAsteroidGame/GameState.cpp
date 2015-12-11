@@ -236,8 +236,8 @@ bool GameState::mouseMoved(const OIS::MouseEvent &evt)
 
 	if(m_bLMouseDown)
 	{
-		m_shootPos.x = evt.state.X.abs;
-		m_shootPos.y = evt.state.Y.abs;
+		m_shootPos.x = mousePosition.x;
+		m_shootPos.y = mousePosition.y;
 	}
     return true;
 }
@@ -253,8 +253,8 @@ bool GameState::mousePressed(const OIS::MouseEvent &evt, OIS::MouseButtonID id)
         //onLeftPressed(evt);
         m_bLMouseDown = true;
 		m_bulletElapsedTime = 0;
-		m_shootPos.x = evt.state.X.abs;
-		m_shootPos.y = evt.state.Y.abs;
+		m_shootPos.x = mousePosition.x;
+		m_shootPos.y = mousePosition.y;
     }
     else if(id == OIS::MB_Right)
     {
