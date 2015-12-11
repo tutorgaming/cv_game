@@ -125,13 +125,16 @@ void GameState::createScene()
 	//Create Mouse Cursor
 	
 	m_score = 0;
+
+	m_maxHitPoint = 1000;
+	m_maxManaPoint = 1000;
 	m_hitPoint = m_maxHitPoint;
 	m_manaPoint = m_maxManaPoint;
-	m_maxHitPoint = 1000;
+
 	m_damagePerHit = 200;
 	m_manaPerShot = 200;
-	m_manaPerTime = 50;
-	m_maxManaPoint = 1000;
+	m_manaPerTime = 5;
+	
 	m_isAlive = true;
 
 	/*
@@ -539,9 +542,9 @@ void GameState::update(double timeSinceLastFrame)
 			m_pDetailsPanel->setParamValue(10, Ogre::StringConverter::toString(m_hitPoint) + "/" + Ogre::StringConverter::toString(m_maxHitPoint));
 			m_pDetailsPanel->setParamValue(11, Ogre::StringConverter::toString(m_manaPoint) + "/" + Ogre::StringConverter::toString(m_maxManaPoint));
 			if(m_bSettingsMode)
-                m_pDetailsPanel->setParamValue(11, "Buffered Input");
+                m_pDetailsPanel->setParamValue(12, "Buffered Input");
             else
-                m_pDetailsPanel->setParamValue(11, "Un-Buffered Input");
+                m_pDetailsPanel->setParamValue(12, "Un-Buffered Input");
         }
     }
 
