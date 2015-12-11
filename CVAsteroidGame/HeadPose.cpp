@@ -352,6 +352,7 @@ void HeadPose::process(cv::Mat &input, cv::Mat &output)
 
 			//Estimate the pose
 			cvPOSIT(positObject, &srcImagePoints[0], FOCAL_LENGTH, criteria, rotation_matrix, translation_vector);
+
 			//Project axes
 			std::vector<CvPoint2D32f> projectedAxesPoints;
 			for (size_t p = 0; p<axesPoints.size(); p++)

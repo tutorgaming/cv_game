@@ -32,7 +32,6 @@ private:
 	float* lookPosition;
 	KalmanFilter KF;
 public:
-
 	HeadPose(void);
 	virtual ~HeadPose(void);
 	void init(void);
@@ -45,7 +44,7 @@ private:
 	void trackFaceFeatures(Mat &inputImage);
 	Rect getMatchingRect(Mat &inputImage, Mat &templateImg);
 	int getDistance2(Rect &rect1, Rect &rect2);
-	Rect getBestMatching(Mat &inputImage, Rect &lastRect, Mat &lastMatch, Mat &oriTemplate);
+	Rect getBestMatching(Mat &inputImage, Rect &lastRect, Mat &lastMatch, Mat &oriTemplate );
 
 public:
 	void process(cv::Mat &input, cv::Mat &output);
