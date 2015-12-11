@@ -101,6 +101,7 @@
     <ClCompile Include="GameManager.cpp" />
     <ClCompile Include="GameState.cpp" />
     <ClCompile Include="HeadPose.cpp" />
+    <ClCompile Include="HandTracker.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="MenuState.cpp" />
     <ClCompile Include="Meteor.cpp" />
@@ -116,6 +117,7 @@
     <ClInclude Include="DotSceneLoader.hpp" />
     <ClInclude Include="GameManager.hpp" />
     <ClInclude Include="GameState.hpp" />
+    <ClInclude Include="HandTracker.hpp" />
     <ClInclude Include="HeadPose.hpp" />
     <ClInclude Include="MenuState.hpp" />
     <ClInclude Include="Meteor.hpp" />

@@ -117,7 +117,6 @@ void HeadPose::detectFaceFeatures(Mat &inputImage)
 		if (noses.size() > 0)
 		{
 			noseTemplate = Mat(faceTemplate, noses[0]);
-			imshow("Nose template", noseTemplate);
 
 			Mat face_roi = Mat(inputImage, faceRect);
 
@@ -165,6 +164,7 @@ void HeadPose::detectFaceFeatures(Mat &inputImage)
 						rectangle(showImage, Rect(faceRect.x + bottom_rect.x + mouthRect.x, faceRect.y + bottom_rect.y + mouthRect.y, mouthRect.width, mouthRect.height), Scalar(255, 0, 0));
 
 						if (waitKey(10) == 'o') {
+							destroyWindow("Detected Face features");
 							m_foundFace = true;
 
 							lastNoseMatch = noseTemplate.clone();
@@ -197,7 +197,10 @@ void HeadPose::detectFaceFeatures(Mat &inputImage)
 
 		}
 	}
-	imshow("Detected Face features", showImage);
+	if (!m_foundFace)
+	{
+		imshow("Detected Face features", showImage);
+	}
 }
 
 int HeadPose::getDistance2(Rect &rect1, Rect &rect2)

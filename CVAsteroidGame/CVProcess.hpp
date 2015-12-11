@@ -4,6 +4,7 @@
 
 #include <opencv2/opencv.hpp>
 #include "HeadPose.hpp"
+#include "HandTracker.hpp"
 
 //---------------------------------------------------------------------------
 
@@ -19,7 +20,7 @@ private:
 
 public:
 	HeadPose* mHeadPose;
-
+	HandTracker* mHandTracker;
 private:
 	void runThread();
 

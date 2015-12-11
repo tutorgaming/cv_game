@@ -25,6 +25,10 @@ void CVProcess::init(void)
 	mHeadPose = new HeadPose();
 	mHeadPose->init();
 
+	// Create hand tracker
+	mHandTracker = new HandTracker();
+	mHandTracker->init();
+
 	// Create the thread and start work
 	assert(!mThread);
 	mThread = boost::shared_ptr<boost::thread>(new boost::thread(boost::bind(&CVProcess::runThread, this)));
@@ -44,6 +48,15 @@ void CVProcess::runThread()
 			//resize(captureFrame, captureFrame, cv::Size(captureFrame.cols / 2, captureFrame.rows / 2));
 			flip(captureFrame, captureFrame, 1);
 			mHeadPose->process(captureFrame, result);
+			
+
+			// Track hand
+			Mat resultHand;
+			Mat resizedImg;
+			resize(captureFrame, resizedImg, cv::Size(captureFrame.cols / 4, captureFrame.rows / 4));
+			mHandTracker->process(resizedImg, resultHand);
+			Rect hRect = mHandTracker->getLastHandRect();
+			rectangle(result, Rect(hRect.x * 4, hRect.y * 4, hRect.width * 4, hRect.height *4), Scalar(255, 0, 0));
 			cv::imshow("Webcam", result);
 		}
 
