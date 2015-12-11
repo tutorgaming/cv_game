@@ -459,14 +459,6 @@ void GameState::moveCursorByHeadPose()
 	mousePosition.y = lookPosition[1] * OgreFramework::getSingletonPtr()->m_pViewport->getActualHeight() * 2 + OgreFramework::getSingletonPtr()->m_pViewport->getActualHeight() * 0.5f + +m_crossOffsetY;
 	mousePosition.z = 0.0f;
 
-
-	//Scale
-	mousePosition.x *= 40;
-	mousePosition.y *= 80;
-	//Move Axis
-	mousePosition.x = mousePosition.x + (OgreFramework::getSingletonPtr()->m_pViewport->getActualWidth()/2);
-	mousePosition.y = mousePosition.y + (OgreFramework::getSingletonPtr()->m_pViewport->getActualHeight()/2);
-
 	//Boundary
 	if( mousePosition.x >= OgreFramework::getSingletonPtr()->m_pViewport->getActualWidth()){
 		mousePosition.x = OgreFramework::getSingletonPtr()->m_pViewport->getActualWidth();
