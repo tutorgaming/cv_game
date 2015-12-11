@@ -133,7 +133,7 @@ void GameState::createScene()
 
 	m_damagePerHit = 200;
 	m_manaPerShot = 200;
-	m_manaPerTime = 5;
+	m_manaPerTime = 0.1f;
 	
 	m_isAlive = true;
 

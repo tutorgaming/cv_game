@@ -135,7 +135,7 @@ private:
 	int							m_damagePerHit;
 	int							m_manaPoint;
 	int							m_manaPerShot;
-	int							m_manaPerTime;
+	float						m_manaPerTime;
 	int							m_maxManaPoint;
 	bool						m_isAlive;
 
