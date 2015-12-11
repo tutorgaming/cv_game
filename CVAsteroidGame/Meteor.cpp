@@ -115,7 +115,7 @@ Meteor::Meteor(Ogre::SceneManager* m_pSceneMgr){
 
 bool Meteor::isIn(Ogre::Vector3 point)
 {
-	Ogre::Vector3 size = m_pMeteorEntity->getBoundingBox.getRenderingMinPixelSize();
+	Ogre::Vector3 size = m_pMeteorEntity->getBoundingBox().getSize();
 
 	Ogre::Vector3 position = m_pMeteorNode->getPosition();
 
@@ -123,4 +123,3 @@ bool Meteor::isIn(Ogre::Vector3 point)
 		position.y - size.y / 2 <= point.y && point.y <= position.y + size.y / 2 &&
 		position.z - size.z / 2 <= point.z && point.z <= position.z + size.z / 2 ;
 }
-

@@ -92,7 +92,7 @@ void Bullet::move(double timeSinceLastFrame)
 void Bullet::getPoint(std::vector<Ogre::Vector3>& v)
 {
 	Ogre::Vector3 position = m_pBulletNode->getPosition();
-	Ogre::Vector3 size = m_pBulletEntity->getBoundingBox.getRenderingMinPixelSize();
+	Ogre::Vector3 size = m_pBulletEntity->getBoundingBox().getSize();
 
 	v.push_back(Ogre::Vector3(position.x + size.x / 2, position.y + size.y / 2, position.z + size.z / 2));
 	v.push_back(Ogre::Vector3(position.x + size.x / 2, position.y + size.y / 2, position.z - size.z / 2));

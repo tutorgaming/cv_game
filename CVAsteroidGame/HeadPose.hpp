@@ -29,6 +29,8 @@ private:
 	bool m_foundFace;
 	int match_method;
 	double distThreshold;
+	float* lookPosition;
+	KalmanFilter KF;
 public:
 
 	HeadPose(void);
@@ -36,6 +38,7 @@ public:
 	void init(void);
 	float* getHeadRotationMatrix(void);
 	float* getHeadPosition();
+	float* getLookPosition();
 
 private:
 	void detectFaceFeatures(Mat &inputImage);

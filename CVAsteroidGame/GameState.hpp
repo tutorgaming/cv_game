@@ -74,10 +74,12 @@ public:
 	void updateBullet(double timeSinceLastFrame);
 	void checkGenerateBullet(double timeSinceLastFrame);
 
-	bool isIntersect(Meteor* m, Bullet* b);
-
 	//Game System
+	bool isIntersect(Meteor* m, Bullet* b);
 	void upScore();
+
+	//Calibrate crosshair
+	void calibrateCrossHair();
 
 private:
 	Ogre::SceneNode*			m_pOgreHeadNode;
@@ -128,6 +130,12 @@ private:
 	int							m_hitPoint;
 	int							m_manaPoint;
 
+	//Cursor Position
+	Ogre::Vector3				mousePosition;
+
+	// Calibrate cross-hair
+	int m_crossOffsetX;
+	int m_crossOffsetY;
 };
 
 //|||||||||||||||||||||||||||||||||||||||||||||||
