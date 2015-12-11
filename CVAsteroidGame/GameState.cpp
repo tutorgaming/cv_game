@@ -706,6 +706,49 @@ void GameState::buildGUI()
     //OgreFramework::getSingletonPtr()->m_pTrayMgr->createLabel(OgreBites::TL_TOP, "GameLbl", "Game mode", 250);
     OgreFramework::getSingletonPtr()->m_pTrayMgr->showCursor();
 
+	/*Ogre::BillboardSet* cursor2BillboardSet = m_pSceneMgr->createBillboardSet();
+	Ogre::Billboard* cursor2Billboard = cursor2BillboardSet->createBillboard(Ogre::Vector3(0,0,0));
+	cursor2BillboardSet->setMaterialName("SdkTrays/Cursor2");
+
+	Ogre::SceneNode* cursor2SceneNode = m_pSceneMgr->getRootSceneNode()->createChildSceneNode(Ogre::Vector3(mousePosition.x, mousePosition.y, -1000.0f));
+	cursor2SceneNode->setPosition(mousePosition.x,mousePosition.y,-1000.0f);
+	cursor2SceneNode->setScale(1,1,1);
+	cursor2SceneNode->attachObject(cursor2BillboardSet);*/
+
+	//Ogre::OverlayManager& overlayManager = Ogre::OverlayManager::getSingleton();
+ //
+	//// Create a panel
+	//Ogre::OverlayContainer* panel = static_cast<Ogre::OverlayContainer*>(
+	//	overlayManager.createOverlayElement("Panel", "PanelName"));
+	//panel->setMetricsMode(Ogre::GMM_PIXELS);
+	//panel->setPosition(10, 10);
+	//panel->setDimensions(100, 100);
+	////panel->setMaterialName("MaterialName"); // Optional background material
+ //
+	//// Create a text area
+	//Ogre::TextAreaOverlayElement* textArea = static_cast<Ogre::TextAreaOverlayElement*>(
+	//	overlayManager.createOverlayElement("TextArea", "TextAreaName"));
+	//textArea->setMetricsMode(Ogre::GMM_PIXELS);
+	//textArea->setPosition(0, 0);
+	//textArea->setDimensions(100, 100);
+	//textArea->setCaption("Hello, World!");
+	//textArea->setCharHeight(16);
+	//textArea->setFontName("TrebuchetMSBold");
+	//textArea->setColourBottom(Ogre::ColourValue(0.3, 0.5, 0.3));
+	//textArea->setColourTop(Ogre::ColourValue(0.5, 0.7, 0.5));
+ //
+	//// Create an overlay, and add the panel
+	//Ogre::Overlay* overlay = overlayManager.create("OverlayName");
+	//overlay->add2D(panel);
+ //
+	//// Add the text area to the panel
+	//panel->addChild(textArea);
+ //
+	//// Show the overlay
+	//overlay->show();
+
+	
+
     Ogre::StringVector items;
     items.push_back("cam.pX");
     items.push_back("cam.pY");
