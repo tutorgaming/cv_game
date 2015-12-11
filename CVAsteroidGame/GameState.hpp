@@ -15,6 +15,8 @@
 #include "Meteor.hpp"
 #include "Bullet.hpp"
 
+#include <vector>
+
 //|||||||||||||||||||||||||||||||||||||||||||||||
 
 enum QueryFlags
@@ -72,6 +74,11 @@ public:
 	void updateBullet(double timeSinceLastFrame);
 	void checkGenerateBullet(double timeSinceLastFrame);
 
+	bool isIntersect(Meteor* m, Bullet* b);
+
+	//Game System
+	void upScore();
+
 private:
 	Ogre::SceneNode*			m_pOgreHeadNode;
 	Ogre::Entity*				m_pOgreHeadEntity;
@@ -116,7 +123,10 @@ private:
 	//Shoot Pose
 	Ogre::Vector2				m_shootPos;
 	
-
+	//Game System
+	int							m_score;
+	int							m_hitPoint;
+	int							m_manaPoint;
 
 };
 

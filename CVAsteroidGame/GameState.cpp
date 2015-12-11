@@ -121,6 +121,9 @@ void GameState::createScene()
 
 	//Create Mouse Cursor
 	
+	m_score = 0;
+	m_hitPoint = 100;
+	m_manaPoint = 0;
 
 	/*
 	m_pSceneMgr->getEntity("Cube01")->setQueryFlags(CUBE_MASK);
@@ -140,7 +143,7 @@ void GameState::createScene()
     m_pOgreHeadMatHigh->getTechnique(0)->getPass(0)->setAmbient(1, 0, 0);
     m_pOgreHeadMatHigh->getTechnique(0)->getPass(0)->setDiffuse(1, 0, 0, 0);
 	*/
-
+	
 	m_pSceneMgr->setSkyBox(true, "SkyBox/Space", 1000);
 }
 
@@ -583,7 +586,18 @@ void GameState::updateBullet(double timeSinceLastFrame)
 	for(auto b : m_bulletList)
 	{
 		if (b->isActive())
+		{
 			b->move(timeSinceLastFrame);
+			for (auto m : m_meteorList)
+			{
+				if (m->isActive() && isIntersect(m, b))
+				{
+					upScore();
+					m->die();
+					b->die();
+				}
+			}
+		}
 	}
 	//Collision Detection Will Be Implemented Here
 }
@@ -602,6 +616,34 @@ void GameState::checkGenerateBullet(double timeSinceLastFrame)
 				checkShoot();
 		}
 	}
+}
+
+//|||||||||||||||||||||||||||||||||||||||||||||||||
+//Intersection
+//||||||||||||||||||||||||||||||||||||||||||||||
+bool GameState::isIntersect(Meteor* m, Bullet* b)
+{
+	std::vector<Ogre::Vector3> allCheckPoint;
+	b->getPoint(allCheckPoint);
+	for(auto p : allCheckPoint)
+	{
+		if (m->isIn(p))
+			return true;
+	}
+	return false;
+}
+
+
+//|||||||||||||||||||||||||||||||||||||||||||||||
+//GAME MANAGER
+//|||||||||||||||||||||||||||||||||||||||||||||||
+void GameState::upScore()
+{
+	int minScore = 500;
+	int maxScore = 1000;
+	int scoreRand = (int)(Ogre::Math::UnitRandom() * maxScore-minScore) - minScore;
+
+	m_score += scoreRand;
 }
 
 
