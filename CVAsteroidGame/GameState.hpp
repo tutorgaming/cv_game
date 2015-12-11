@@ -72,6 +72,9 @@ public:
 	void updateBullet(double timeSinceLastFrame);
 	void checkGenerateBullet(double timeSinceLastFrame);
 
+	//Calibrate crosshair
+	void calibrateCrossHair();
+
 private:
 	Ogre::SceneNode*			m_pOgreHeadNode;
 	Ogre::Entity*				m_pOgreHeadEntity;
@@ -119,6 +122,10 @@ private:
 	//Cursor Position
 	Ogre::Vector3				mousePosition;
 
+
+	// Calibrate cross-hair
+	int m_crossOffsetX;
+	int m_crossOffsetY;
 };
 
 //|||||||||||||||||||||||||||||||||||||||||||||||
