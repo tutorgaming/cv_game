@@ -5,6 +5,7 @@
 #include "MenuState.hpp"
 #include "GameState.hpp"
 #include "PauseState.hpp"
+#include "CreditState.hpp"
 
 //|||||||||||||||||||||||||||||||||||||||||||||||
 
@@ -41,8 +42,10 @@ void DemoApp::startDemo()
 
 	// Create scenes
 	MenuState::create(m_pAppStateManager, "MenuState");
+	CreditState::create(m_pAppStateManager, "CreditState");
 	GameState::create(m_pAppStateManager, "GameState");
     PauseState::create(m_pAppStateManager, "PauseState");
+
 
 	// Start!
 

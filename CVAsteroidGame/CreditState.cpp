@@ -1,6 +1,6 @@
 //|||||||||||||||||||||||||||||||||||||||||||||||
 
-#include "MenuState.hpp"
+#include "CreditState.hpp"
 
 //|||||||||||||||||||||||||||||||||||||||||||||||
 
@@ -8,7 +8,7 @@ using namespace Ogre;
 
 //|||||||||||||||||||||||||||||||||||||||||||||||
 
-MenuState::MenuState()
+CreditState::CreditState()
 {
     m_bQuit         = false;
     m_FrameEvent    = Ogre::FrameEvent();
@@ -16,18 +16,18 @@ MenuState::MenuState()
 
 //|||||||||||||||||||||||||||||||||||||||||||||||
 
-void MenuState::enter()
+void CreditState::enter()
 {
-    OgreFramework::getSingletonPtr()->m_pLog->logMessage("Entering MenuState...");
+    OgreFramework::getSingletonPtr()->m_pLog->logMessage("Entering CreditState...");
 
 
-    m_pSceneMgr = OgreFramework::getSingletonPtr()->m_pRoot->createSceneManager(ST_GENERIC, "MenuSceneMgr");
+    m_pSceneMgr = OgreFramework::getSingletonPtr()->m_pRoot->createSceneManager(ST_GENERIC, "CreditSceneMgr");
 
     m_pSceneMgr->setAmbientLight(Ogre::ColourValue(0.7f, 0.7f, 0.7f));
 
     m_pSceneMgr->addRenderQueueListener(OgreFramework::getSingletonPtr()->m_pOverlaySystem);
 	
-    m_pCamera = m_pSceneMgr->createCamera("MenuCam");
+    m_pCamera = m_pSceneMgr->createCamera("CreditCam");
     m_pCamera->setPosition(Vector3(0, 25, -50));
     m_pCamera->lookAt(Vector3(0, 0, 0));
     m_pCamera->setNearClipDistance(1);
@@ -44,25 +44,30 @@ void MenuState::enter()
     OgreFramework::getSingletonPtr()->m_pTrayMgr->showCursor();
 
 	OgreFramework::getSingletonPtr()->m_pTrayMgr->createDecorWidget(OgreBites::TL_CENTER,"Game Logo","SdkTrays/Logo2");
-	OgreFramework::getSingletonPtr()->m_pTrayMgr->createSeparator(OgreBites::TL_CENTER,"Seperator");
-    OgreFramework::getSingletonPtr()->m_pTrayMgr->createButton(OgreBites::TL_CENTER, "EnterBtn", " Play Now ! ", 250);
-	OgreFramework::getSingletonPtr()->m_pTrayMgr->createButton(OgreBites::TL_CENTER, "CreditBtn", " Credit ", 250);
-    OgreFramework::getSingletonPtr()->m_pTrayMgr->createButton(OgreBites::TL_CENTER, "ExitBtn", " Exit ", 250);
+	Ogre::String infoText = "Teams\n";
+	infoText.append("\n");
+    infoText.append("Archan Soonthornarom\n");
+	infoText.append("Pongsatorn Santiwatanakul\n");
+	infoText.append("Badin Jitsuksamran\n");
+	infoText.append("Theppasith Nisitsukcharoen\n");
+
+    OgreFramework::getSingletonPtr()->m_pTrayMgr->createTextBox(OgreBites::TL_CENTER, "TeamMemberPanel", infoText, 300, 125);
+    OgreFramework::getSingletonPtr()->m_pTrayMgr->createButton(OgreBites::TL_CENTER, "BackBtn", " Back to Main Menu ", 250);
 	
     createScene();
 }
 
 //|||||||||||||||||||||||||||||||||||||||||||||||
 
-void MenuState::createScene()
+void CreditState::createScene()
 {
 }
 
 //|||||||||||||||||||||||||||||||||||||||||||||||
 
-void MenuState::exit()
+void CreditState::exit()
 {
-    OgreFramework::getSingletonPtr()->m_pLog->logMessage("Leaving MenuState...");
+    OgreFramework::getSingletonPtr()->m_pLog->logMessage("Leaving CreditState...");
 
     m_pSceneMgr->destroyCamera(m_pCamera);
     if(m_pSceneMgr)
@@ -75,7 +80,7 @@ void MenuState::exit()
 
 //|||||||||||||||||||||||||||||||||||||||||||||||
 
-bool MenuState::keyPressed(const OIS::KeyEvent &keyEventRef)
+bool CreditState::keyPressed(const OIS::KeyEvent &keyEventRef)
 {
 	//Press Escape at this menu to quit
     if(OgreFramework::getSingletonPtr()->m_pKeyboard->isKeyDown(OIS::KC_ESCAPE))
@@ -90,7 +95,7 @@ bool MenuState::keyPressed(const OIS::KeyEvent &keyEventRef)
 
 //|||||||||||||||||||||||||||||||||||||||||||||||
 
-bool MenuState::keyReleased(const OIS::KeyEvent &keyEventRef)
+bool CreditState::keyReleased(const OIS::KeyEvent &keyEventRef)
 {
     OgreFramework::getSingletonPtr()->keyReleased(keyEventRef);
     return true;
@@ -98,7 +103,7 @@ bool MenuState::keyReleased(const OIS::KeyEvent &keyEventRef)
 
 //|||||||||||||||||||||||||||||||||||||||||||||||
 
-bool MenuState::mouseMoved(const OIS::MouseEvent &evt)
+bool CreditState::mouseMoved(const OIS::MouseEvent &evt)
 {
     if(OgreFramework::getSingletonPtr()->m_pTrayMgr->injectMouseMove(evt)) return true;
     return true;
@@ -106,7 +111,7 @@ bool MenuState::mouseMoved(const OIS::MouseEvent &evt)
 
 //|||||||||||||||||||||||||||||||||||||||||||||||
 
-bool MenuState::mousePressed(const OIS::MouseEvent &evt, OIS::MouseButtonID id)
+bool CreditState::mousePressed(const OIS::MouseEvent &evt, OIS::MouseButtonID id)
 {
     if(OgreFramework::getSingletonPtr()->m_pTrayMgr->injectMouseDown(evt, id)) return true;
     return true;
@@ -114,7 +119,7 @@ bool MenuState::mousePressed(const OIS::MouseEvent &evt, OIS::MouseButtonID id)
 
 //|||||||||||||||||||||||||||||||||||||||||||||||
 
-bool MenuState::mouseReleased(const OIS::MouseEvent &evt, OIS::MouseButtonID id)
+bool CreditState::mouseReleased(const OIS::MouseEvent &evt, OIS::MouseButtonID id)
 {
     if(OgreFramework::getSingletonPtr()->m_pTrayMgr->injectMouseUp(evt, id)) return true;
     return true;
@@ -122,28 +127,18 @@ bool MenuState::mouseReleased(const OIS::MouseEvent &evt, OIS::MouseButtonID id)
 
 //|||||||||||||||||||||||||||||||||||||||||||||||
 
-void MenuState::update(double timeSinceLastFrame)
+void CreditState::update(double timeSinceLastFrame)
 {
     m_FrameEvent.timeSinceLastFrame = timeSinceLastFrame;
     OgreFramework::getSingletonPtr()->m_pTrayMgr->frameRenderingQueued(m_FrameEvent);
-
-    if(m_bQuit == true)
-    {
-        shutdown();
-        return;
-    }
 }
 
 //|||||||||||||||||||||||||||||||||||||||||||||||
 
-void MenuState::buttonHit(OgreBites::Button *button)
+void CreditState::buttonHit(OgreBites::Button *button)
 {
-    if(button->getName() == "ExitBtn")
-        m_bQuit = true;
-    else if(button->getName() == "EnterBtn")
-        changeAppState(findByName("GameState"));
-	else if(button->getName() == "CreditBtn")
-        changeAppState(findByName("CreditState"));
+		if(button->getName() == "BackBtn")
+        changeAppState(findByName("MenuState"));
 }
 
 //|||||||||||||||||||||||||||||||||||||||||||||||
