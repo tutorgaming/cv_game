@@ -15,6 +15,8 @@
 #include "Meteor.hpp"
 #include "Bullet.hpp"
 
+#include <vector>
+
 //|||||||||||||||||||||||||||||||||||||||||||||||
 
 enum QueryFlags
@@ -72,6 +74,10 @@ public:
 	void updateBullet(double timeSinceLastFrame);
 	void checkGenerateBullet(double timeSinceLastFrame);
 
+	//Game System
+	bool isIntersect(Meteor* m, Bullet* b);
+	void upScore();
+
 	//Calibrate crosshair
 	void calibrateCrossHair();
 
@@ -119,9 +125,13 @@ private:
 	//Shoot Pose
 	Ogre::Vector2				m_shootPos;
 	
+	//Game System
+	int							m_score;
+	int							m_hitPoint;
+	int							m_manaPoint;
+
 	//Cursor Position
 	Ogre::Vector3				mousePosition;
-
 
 	// Calibrate cross-hair
 	int m_crossOffsetX;

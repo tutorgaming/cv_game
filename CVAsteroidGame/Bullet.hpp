@@ -3,7 +3,7 @@
 #include "OgreMaterialManager.h"
 #include "AdvancedOgreFramework.hpp"
 #include "OgreParticleSystem.h"
-
+#include <vector>
 
 class Bullet
 {
@@ -18,6 +18,8 @@ public:
 	void die();
 	void reset(int xPos, int yPos, Ogre::Vector3 direction);
 	bool isActive(){ return m_active_flag; }
+
+	void getPoint(std::vector<Ogre::Vector3>& v);
 
 	void setGameField(Ogre::Real x, Ogre::Real y){ m_fieldX = x; m_fieldY = y; }
 private:
