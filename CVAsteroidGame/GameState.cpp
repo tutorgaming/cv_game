@@ -437,8 +437,8 @@ void GameState::moveCursorByHeadPose()
 	mousePosition.z = 0.0f;
 
 	//Scale
-	mousePosition.x *= 80;
-	mousePosition.x *= 160;
+	mousePosition.x *= 40;
+	mousePosition.y *= 80;
 	//Move Axis
 	mousePosition.x = mousePosition.x + (OgreFramework::getSingletonPtr()->m_pViewport->getActualWidth()/2);
 	mousePosition.y = mousePosition.y + (OgreFramework::getSingletonPtr()->m_pViewport->getActualHeight()/2);
@@ -464,7 +464,7 @@ void GameState::moveCursorByHeadPose()
 			mousePosition.x 
 			,mousePosition.y
 		);
-
+	
 
 	m_LastHeadPose = currentRotationMatrix;
 	
@@ -644,7 +644,7 @@ void GameState::buildGUI()
 {
     OgreFramework::getSingletonPtr()->m_pTrayMgr->showFrameStats(OgreBites::TL_BOTTOMLEFT);
     OgreFramework::getSingletonPtr()->m_pTrayMgr->showLogo(OgreBites::TL_BOTTOMRIGHT);
-    OgreFramework::getSingletonPtr()->m_pTrayMgr->createLabel(OgreBites::TL_TOP, "GameLbl", "Game mode", 250);
+    //OgreFramework::getSingletonPtr()->m_pTrayMgr->createLabel(OgreBites::TL_TOP, "GameLbl", "Game mode", 250);
     OgreFramework::getSingletonPtr()->m_pTrayMgr->showCursor();
 
     Ogre::StringVector items;
@@ -673,7 +673,7 @@ void GameState::buildGUI()
     displayModes.push_back("Solid mode");
     displayModes.push_back("Wireframe mode");
     displayModes.push_back("Point mode");
-    OgreFramework::getSingletonPtr()->m_pTrayMgr->createLongSelectMenu(OgreBites::TL_TOPRIGHT, "DisplayModeSelMenu", "Display Mode", 200, 3, displayModes);
+    //OgreFramework::getSingletonPtr()->m_pTrayMgr->createLongSelectMenu(OgreBites::TL_TOPRIGHT, "DisplayModeSelMenu", "Display Mode", 200, 3, displayModes);
 }
 
 //|||||||||||||||||||||||||||||||||||||||||||||||

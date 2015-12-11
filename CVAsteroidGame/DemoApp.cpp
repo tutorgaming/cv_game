@@ -35,7 +35,7 @@ void DemoApp::startDemo()
 	m_pAppStateManager = new AppStateManager();
 
 	// Init CV process
-	//new CVProcess();
+	// new CVProcess();
 	CVProcess::getInstance().init();
 
 
@@ -45,6 +45,7 @@ void DemoApp::startDemo()
     PauseState::create(m_pAppStateManager, "PauseState");
 
 	// Start!
+
 	m_pAppStateManager->start(m_pAppStateManager->findByName("MenuState"));
 
 	
