@@ -117,17 +117,22 @@ void GameState::createScene()
 	m_spawnMinDelay = 500;
 	randomSpawnDelay();
 	m_spawnElapsedTime = 0;
-
-	m_bulletElapsedTime = 0;
 	m_bulletDelay = 300;
+	m_bulletElapsedTime = 0;
 
 	m_headMoveScale = 150;
 
 	//Create Mouse Cursor
 	
 	m_score = 0;
-	m_hitPoint = 100;
-	m_manaPoint = 0;
+	m_hitPoint = m_maxHitPoint;
+	m_manaPoint = m_maxManaPoint;
+	m_maxHitPoint = 1000;
+	m_damagePerHit = 200;
+	m_manaPerShot = 200;
+	m_manaPerTime = 50;
+	m_maxManaPoint = 1000;
+	m_isAlive = true;
 
 	/*
 	m_pSceneMgr->getEntity("Cube01")->setQueryFlags(CUBE_MASK);
@@ -531,8 +536,9 @@ void GameState::update(double timeSinceLastFrame)
 			m_pDetailsPanel->setParamValue(7, Ogre::StringConverter::toString(mousePosition.x));
 			m_pDetailsPanel->setParamValue(8, Ogre::StringConverter::toString(mousePosition.y));
 			m_pDetailsPanel->setParamValue(9, Ogre::StringConverter::toString(m_score));
-            m_pDetailsPanel->setParamValue(10, Ogre::StringConverter::toString(OgreFramework::getSingletonPtr()->m_pViewport->getActualHeight()));
-            if(m_bSettingsMode)
+			m_pDetailsPanel->setParamValue(10, Ogre::StringConverter::toString(m_hitPoint) + "/" + Ogre::StringConverter::toString(m_maxHitPoint));
+			m_pDetailsPanel->setParamValue(11, Ogre::StringConverter::toString(m_manaPoint) + "/" + Ogre::StringConverter::toString(m_maxManaPoint));
+			if(m_bSettingsMode)
                 m_pDetailsPanel->setParamValue(11, "Buffered Input");
             else
                 m_pDetailsPanel->setParamValue(11, "Un-Buffered Input");
@@ -588,8 +594,14 @@ void GameState::updateMeteor(double timeSinceLastFrame)
 	for(auto m : m_meteorList)
 	//for each(Meteor* m in m_meteorList)
 	{
-		if (m->isActive())
+		if (m->isActive()){
 			m->move(timeSinceLastFrame);
+			if (isCrashPlayer(m))
+			{
+				m->die();
+				getHit();
+			}
+		}
 	}
 }
 //|||||||||||||||||||||||||||||||||||||||||||||||
@@ -657,12 +669,21 @@ void GameState::checkGenerateBullet(double timeSinceLastFrame)
 	//Single pulser
 	if(m_bLMouseDown)
 	{
-		m_bulletElapsedTime += (float)timeSinceLastFrame;
-		if (m_bulletElapsedTime >= m_bulletDelay)
+		if (m_manaPoint >= m_manaPerShot)
 		{
-			m_bulletElapsedTime = 0;
-			checkShoot();
+			m_bulletElapsedTime += (float)timeSinceLastFrame;
+			if (m_bulletElapsedTime >= m_bulletDelay)
+			{
+				m_bulletElapsedTime = 0;
+				checkShoot();
+				m_manaPoint -= m_manaPerShot;
+				m_manaPoint = m_manaPoint <= 0 ? 0 : m_manaPoint;
+			}
 		}
+	}
+	else{
+		m_manaPoint += (int)(m_manaPerTime * (float)timeSinceLastFrame);
+		m_manaPoint = m_manaPoint > m_maxManaPoint ? m_maxManaPoint : m_manaPoint;
 	}
 }
 
@@ -685,6 +706,13 @@ bool GameState::isIntersect(Meteor* m, Bullet* b)
 	return false;*/
 }
 
+bool GameState::isCrashPlayer(Meteor *m)
+{
+	Ogre::Vector3 p1 = m->getPosition();
+	Ogre::Vector3 p2 = m_pCamera->getPosition();
+	return abs(p1.x - p2.x) < 10 && abs(p1.y - p2.y) < 10 && abs(p1.z - p2.z) < 10;
+}
+
 void GameState::upScore()
 {
 	int minScore = 500;
@@ -694,6 +722,15 @@ void GameState::upScore()
 	m_score += scoreRand;
 }
 
+void GameState::getHit()
+{
+	m_hitPoint -= m_damagePerHit;
+	if (m_hitPoint <= 0)
+	{
+		m_hitPoint = 0;
+		m_isAlive = false;
+	}
+}
 
 //|||||||||||||||||||||||||||||||||||||||||||||||
 
@@ -715,7 +752,8 @@ void GameState::buildGUI()
 	items.push_back("mouseX");
     items.push_back("mouseY");
 	items.push_back("score");
-    items.push_back("ActualH");
+	items.push_back("HP");
+	items.push_back("MP");
     items.push_back("Mode");
 
     m_pDetailsPanel = OgreFramework::getSingletonPtr()->m_pTrayMgr->createParamsPanel(OgreBites::TL_TOPLEFT, "DetailsPanel", 200, items);
