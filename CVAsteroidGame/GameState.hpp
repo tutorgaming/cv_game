@@ -77,7 +77,9 @@ public:
 
 	//Game System
 	bool isIntersect(Meteor* m, Bullet* b);
+	bool isCrashPlayer(Meteor *m);
 	void upScore();
+	void getHit();
 
 	//Calibrate crosshair
 	void calibrateCrossHair();
@@ -129,7 +131,13 @@ private:
 	//Game System
 	int							m_score;
 	int							m_hitPoint;
+	int							m_maxHitPoint;
+	int							m_damagePerHit;
 	int							m_manaPoint;
+	int							m_manaPerShot;
+	int							m_manaPerTime;
+	int							m_maxManaPoint;
+	bool						m_isAlive;
 
 	//Cursor Position
 	Ogre::Vector3				mousePosition;
