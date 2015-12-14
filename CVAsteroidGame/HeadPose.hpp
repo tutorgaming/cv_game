@@ -31,6 +31,8 @@ private:
 	double distThreshold;
 	float* lookPosition;
 	KalmanFilter KF;
+	int useLastNoseCount, useLastLEyeCount, useLastREyeCount, useLastMouthCount;
+	int maxUseLast;
 public:
 	HeadPose(void);
 	virtual ~HeadPose(void);
@@ -44,7 +46,7 @@ private:
 	void trackFaceFeatures(Mat &inputImage);
 	Rect getMatchingRect(Mat &inputImage, Mat &templateImg);
 	int getDistance2(Rect &rect1, Rect &rect2);
-	Rect getBestMatching(Mat &inputImage, Rect &lastRect, Mat &lastMatch, Mat &oriTemplate );
+	Rect getBestMatching(Mat &inputImage, Rect &lastRect, Mat &lastMatch, Mat &oriTemplate, int &useLastCount);
 
 public:
 	void process(cv::Mat &input, cv::Mat &output);
