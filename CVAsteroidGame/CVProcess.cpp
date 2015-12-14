@@ -1,6 +1,5 @@
 #include "CVProcess.hpp"
 
-
 //---------------------------------------------------------------------------
 CVProcess::CVProcess(void)
 {
@@ -34,6 +33,8 @@ void CVProcess::init(void)
 
 	namedWindow("Webcam");
 	moveWindow("Webcam", 0, 0);
+
+	scorePass = 0;
 }
 
 void CVProcess::runThread()

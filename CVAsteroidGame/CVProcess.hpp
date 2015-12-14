@@ -21,6 +21,8 @@ private:
 public:
 	HeadPose* mHeadPose;
 	HandTracker* mHandTracker;
+
+	int scorePass;
 private:
 	void runThread();
 

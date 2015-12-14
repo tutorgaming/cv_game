@@ -102,6 +102,18 @@ void GameState::exit()
 
     m_pSceneMgr->destroyCamera(m_pCamera);
     m_pSceneMgr->destroyQuery(m_pRSQ);
+
+	for (auto m : m_meteorList)
+	{
+		delete m;
+	}
+	m_meteorList.clear();
+	for (auto b : m_bulletList)
+	{
+		delete b;
+	}
+	m_bulletList.clear();
+
     if(m_pSceneMgr)
         OgreFramework::getSingletonPtr()->m_pRoot->destroySceneManager(m_pSceneMgr);
 }
@@ -530,27 +542,29 @@ void GameState::update(double timeSinceLastFrame)
         return;
     }
 
+	if (!m_isAlive)return;
+
     if(!OgreFramework::getSingletonPtr()->m_pTrayMgr->isDialogVisible())
     {
         if(m_pDetailsPanel->isVisible())
         {
-            m_pDetailsPanel->setParamValue(0, Ogre::StringConverter::toString(m_pCamera->getDerivedPosition().x));
-            m_pDetailsPanel->setParamValue(1, Ogre::StringConverter::toString(m_pCamera->getDerivedPosition().y));
-            m_pDetailsPanel->setParamValue(2, Ogre::StringConverter::toString(m_pCamera->getDerivedPosition().z));
-            m_pDetailsPanel->setParamValue(3, Ogre::StringConverter::toString(m_pCamera->getDerivedOrientation().w));
-            m_pDetailsPanel->setParamValue(4, Ogre::StringConverter::toString(m_pCamera->getDerivedOrientation().x));
-            m_pDetailsPanel->setParamValue(5, Ogre::StringConverter::toString(m_pCamera->getDerivedOrientation().y));
-            m_pDetailsPanel->setParamValue(6, Ogre::StringConverter::toString(m_pCamera->getDerivedOrientation().z));
+            /*m_pDetailsPanel->setParamValue(0, ogre::stringconverter::tostring(m_pcamera->getderivedposition().x));
+            m_pdetailspanel->setparamvalue(1, ogre::stringconverter::tostring(m_pcamera->getderivedposition().y));
+            m_pdetailspanel->setparamvalue(2, ogre::stringconverter::tostring(m_pcamera->getderivedposition().z));
+            m_pdetailspanel->setparamvalue(3, ogre::stringconverter::tostring(m_pcamera->getderivedorientation().w));
+            m_pdetailspanel->setparamvalue(4, ogre::stringconverter::tostring(m_pcamera->getderivedorientation().x));
+            m_pdetailspanel->setparamvalue(5, ogre::stringconverter::tostring(m_pcamera->getderivedorientation().y));
+            m_pdetailspanel->setparamvalue(6, ogre::stringconverter::tostring(m_pcamera->getderivedorientation().z));
 
-			m_pDetailsPanel->setParamValue(7, Ogre::StringConverter::toString(mousePosition.x));
-			m_pDetailsPanel->setParamValue(8, Ogre::StringConverter::toString(mousePosition.y));
-			m_pDetailsPanel->setParamValue(9, Ogre::StringConverter::toString(m_score));
-			m_pDetailsPanel->setParamValue(10, Ogre::StringConverter::toString(m_hitPoint) + "/" + Ogre::StringConverter::toString(m_maxHitPoint));
-			m_pDetailsPanel->setParamValue(11, Ogre::StringConverter::toString(m_manaPoint) + "/" + Ogre::StringConverter::toString(m_maxManaPoint));
-			if(m_bSettingsMode)
+			m_pdetailspanel->setparamvalue(7, ogre::stringconverter::tostring(mouseposition.x));
+			m_pdetailspanel->setparamvalue(8, ogre::StringConverter::toString(mousePosition.y));*/
+			m_pDetailsPanel->setParamValue(0, Ogre::StringConverter::toString(m_hitPoint) + "/" + Ogre::StringConverter::toString(m_maxHitPoint));
+			m_pDetailsPanel->setParamValue(1, Ogre::StringConverter::toString(m_manaPoint) + "/" + Ogre::StringConverter::toString(m_maxManaPoint));
+			m_pDetailsPanel->setParamValue(2, Ogre::StringConverter::toString(m_score));
+			/*if(m_bSettingsMode)
                 m_pDetailsPanel->setParamValue(12, "Buffered Input");
             else
-                m_pDetailsPanel->setParamValue(12, "Un-Buffered Input");
+                m_pDetailsPanel->setParamValue(12, "Un-Buffered Input");*/
         }
     }
 
@@ -577,6 +591,7 @@ void GameState::update(double timeSinceLastFrame)
 	checkGenerateBullet(timeSinceLastFrame);
 
 	updateMeteor(timeSinceLastFrame);
+	if (!m_isAlive)return;
 	updateBullet(timeSinceLastFrame);
 }
 
@@ -610,6 +625,7 @@ void GameState::updateMeteor(double timeSinceLastFrame)
 			{
 				m->die();
 				getHit();
+				if (!m_isAlive)return;
 			}
 		}
 	}
@@ -738,8 +754,9 @@ void GameState::getHit()
 	if (m_hitPoint <= 0)
 	{
 		m_hitPoint = 0;
+		CVProcess::getInstance().scorePass = m_score;
 		m_isAlive = false;
-		pushAppState(findByName("ScoreState"));
+		changeAppState(findByName("ScoreState"));
 	}
 }
 
@@ -777,19 +794,9 @@ void GameState::buildGUI()
     OgreFramework::getSingletonPtr()->m_pTrayMgr->showCursor();
 
     Ogre::StringVector items;
-    items.push_back("cam.pX");
-    items.push_back("cam.pY");
-    items.push_back("cam.pZ");
-    items.push_back("cam.oW");
-    items.push_back("cam.oX");
-    items.push_back("cam.oY");
-    items.push_back("cam.oZ");
-	items.push_back("mouseX");
-    items.push_back("mouseY");
-	items.push_back("score");
-	items.push_back("HP");
-	items.push_back("MP");
-    items.push_back("Mode");
+	items.push_back("HitPoint");
+	items.push_back("ManaPoint");
+	items.push_back("Score");
 
     m_pDetailsPanel = OgreFramework::getSingletonPtr()->m_pTrayMgr->createParamsPanel(OgreBites::TL_TOPLEFT, "DetailsPanel", 200, items);
     m_pDetailsPanel->show();

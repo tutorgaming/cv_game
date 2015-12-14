@@ -1,10 +1,9 @@
 //|||||||||||||||||||||||||||||||||||||||||||||||
 
 #include "ScoreState.hpp"
+#include "CVProcess.hpp"
 
 //|||||||||||||||||||||||||||||||||||||||||||||||
-
-using namespace Ogre;
 
 //|||||||||||||||||||||||||||||||||||||||||||||||
 
@@ -21,23 +20,23 @@ void ScoreState::enter()
 	OgreFramework::getSingletonPtr()->m_pLog->logMessage("Entering ScoreState...");
 
 
-	m_pSceneMgr = OgreFramework::getSingletonPtr()->m_pRoot->createSceneManager(ST_GENERIC, "ScoreSceneMgr");
+	m_pSceneMgr = OgreFramework::getSingletonPtr()->m_pRoot->createSceneManager(Ogre::ST_GENERIC, "ScoreSceneMgr");
 
 	m_pSceneMgr->setAmbientLight(Ogre::ColourValue(0.7f, 0.7f, 0.7f));
 
 	m_pSceneMgr->addRenderQueueListener(OgreFramework::getSingletonPtr()->m_pOverlaySystem);
 
 	m_pCamera = m_pSceneMgr->createCamera("ScoreCam");
-	m_pCamera->setPosition(Vector3(0, 25, -50));
-	m_pCamera->lookAt(Vector3(0, 0, 0));
+	m_pCamera->setPosition(Ogre::Vector3(0, 25, -50));
+	m_pCamera->lookAt(Ogre::Vector3(0, 0, 0));
 	m_pCamera->setNearClipDistance(1);
 
-	m_pCamera->setAspectRatio(Real(OgreFramework::getSingletonPtr()->m_pViewport->getActualWidth()) /
-		Real(OgreFramework::getSingletonPtr()->m_pViewport->getActualHeight()));
+	m_pCamera->setAspectRatio(Ogre::Real(OgreFramework::getSingletonPtr()->m_pViewport->getActualWidth()) /
+		Ogre::Real(OgreFramework::getSingletonPtr()->m_pViewport->getActualHeight()));
 
 	OgreFramework::getSingletonPtr()->m_pTrayMgr->hideBackdrop();
 
-	OgreFramework::getSingletonPtr()->m_pViewport->setBackgroundColour(ColourValue(0.00f, 0.00f, 0.00f, 1.0f));
+	OgreFramework::getSingletonPtr()->m_pViewport->setBackgroundColour(Ogre::ColourValue(0.00f, 0.00f, 0.00f, 1.0f));
 	OgreFramework::getSingletonPtr()->m_pViewport->setCamera(m_pCamera);
 
 	OgreFramework::getSingletonPtr()->m_pTrayMgr->destroyAllWidgets();
@@ -46,7 +45,7 @@ void ScoreState::enter()
 	OgreFramework::getSingletonPtr()->m_pTrayMgr->createDecorWidget(OgreBites::TL_CENTER, "Game Logo", "SdkTrays/Logo2");
 	Ogre::String infoText = "GAME OVER\n";
 	infoText.append("\n");
-	infoText.append("Score : 10000\n");
+	infoText.append("Score : " + Ogre::StringConverter::toString(CVProcess::getInstance().scorePass) + "\n");
 
 	OgreFramework::getSingletonPtr()->m_pTrayMgr->createTextBox(OgreBites::TL_CENTER, "ScorePanel", infoText, 300, 75);
 	OgreFramework::getSingletonPtr()->m_pTrayMgr->createButton(OgreBites::TL_CENTER, "BackBtn", " Back to Main Menu ", 250);
