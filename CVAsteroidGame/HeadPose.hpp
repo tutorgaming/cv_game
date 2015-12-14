@@ -25,7 +25,7 @@ private:
 	int m_FrameWidth;
 	Mat faceTemplate, noseTemplate, leftEyeTemplate, rightEyeTemplate, mouthTemplate;
 	Mat lastNoseMatch, lastLeftEyeMatch, lastRightEyeMatch, lastMouthMatch;
-	Rect lastNoseRect, lastLeftEyeRect, lastRightEyeRect, lastMouthRect;
+	Rect lastFaceRect, lastNoseRect, lastLeftEyeRect, lastRightEyeRect, lastMouthRect;
 	bool m_foundFace;
 	int match_method;
 	double distThreshold;
@@ -38,7 +38,7 @@ public:
 	float* getHeadRotationMatrix(void);
 	float* getHeadPosition();
 	float* getLookPosition();
-
+	Rect getLastFaceRect() { return lastFaceRect; };
 private:
 	void detectFaceFeatures(Mat &inputImage);
 	void trackFaceFeatures(Mat &inputImage);

@@ -5,7 +5,6 @@
 CVProcess::CVProcess(void)
 {
 	cap = cv::VideoCapture(0);
-	cv::namedWindow("Webcam");
 }
 //---------------------------------------------------------------------------
 CVProcess::~CVProcess(void)
@@ -32,6 +31,8 @@ void CVProcess::init(void)
 	// Create the thread and start work
 	assert(!mThread);
 	mThread = boost::shared_ptr<boost::thread>(new boost::thread(boost::bind(&CVProcess::runThread, this)));
+
+	namedWindow("Webcam");
 		
 }
 
@@ -45,18 +46,20 @@ void CVProcess::runThread()
 		cap >> captureFrame;
 		if (captureFrame.data) {
 			cv::Mat result;
-			//resize(captureFrame, captureFrame, cv::Size(captureFrame.cols / 2, captureFrame.rows / 2));
 			flip(captureFrame, captureFrame, 1);
+			// Track head
 			mHeadPose->process(captureFrame, result);
-			
+
+			// Cut face off
+			Mat imgNoFace = captureFrame.clone();			
+			Rect lastFaceRect = mHeadPose->getLastFaceRect();
+			Mat faceMat = imgNoFace.colRange(lastFaceRect.x, lastFaceRect.x + lastFaceRect.width).rowRange(lastFaceRect.y, lastFaceRect.y + lastFaceRect.height);
+			Mat zeroMask = Mat::zeros(lastFaceRect.height, lastFaceRect.width, CV_8UC3);
+			zeroMask.copyTo(faceMat);
 
 			// Track hand
-			Mat resultHand;
-			Mat resizedImg;
-			resize(captureFrame, resizedImg, cv::Size(captureFrame.cols / 4, captureFrame.rows / 4));
-			mHandTracker->process(resizedImg, resultHand);
-			Rect hRect = mHandTracker->getLastHandRect();
-			rectangle(result, Rect(hRect.x * 4, hRect.y * 4, hRect.width * 4, hRect.height *4), Scalar(255, 0, 0));
+			mHandTracker->process(imgNoFace);
+			rectangle(result, mHandTracker->getLastHandRect(), Scalar(255,0 ,0));
 			cv::imshow("Webcam", result);
 		}
 

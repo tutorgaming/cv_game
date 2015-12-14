@@ -119,6 +119,7 @@ void HeadPose::detectFaceFeatures(Mat &inputImage)
 			noseTemplate = Mat(faceTemplate, noses[0]);
 
 			Mat face_roi = Mat(inputImage, faceRect);
+			lastFaceRect = faceRect;
 
 			Rect noseRect = noses[0];
 			rectangle(showImage, Rect(faceRect.x + noseRect.x, faceRect.y + noseRect.y, noseRect.width, noseRect.height), Scalar(255, 0, 0));
@@ -199,7 +200,7 @@ void HeadPose::detectFaceFeatures(Mat &inputImage)
 	}
 	if (!m_foundFace)
 	{
-		imshow("Detected Face features", showImage);
+		imshow("Detection", showImage);
 	}
 }
 
@@ -249,6 +250,7 @@ void HeadPose::trackFaceFeatures(Mat &inputImage)
 	Mat result;
 
 	Rect faceRect = getMatchingRect(inputImage, faceTemplate);
+	lastFaceRect = faceRect;
 	Mat face_roi = Mat(inputImage, faceRect);
 
 	Rect noseRect = getBestMatching(face_roi, lastNoseRect, lastNoseMatch, noseTemplate);
@@ -304,8 +306,6 @@ void HeadPose::trackFaceFeatures(Mat &inputImage)
 	srcImagePoints.push_back(cvPoint2D32f(faceREyeRect.x + faceREyeRect.width / 2, faceREyeRect.y + faceREyeRect.height / 2));
 	srcImagePoints.push_back(cvPoint2D32f(faceMouthRect.x, faceMouthRect.y + faceMouthRect.height / 2));
 	srcImagePoints.push_back(cvPoint2D32f(faceMouthRect.x + faceMouthRect.width, faceMouthRect.y + faceMouthRect.height / 2));
-
-	imshow("Face track", inputImage);
 }
 
 float* HeadPose::getHeadRotationMatrix(void)
