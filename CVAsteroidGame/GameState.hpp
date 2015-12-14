@@ -81,6 +81,8 @@ public:
 	void upScore();
 	void getHit();
 
+	void checkHandMoving();
+
 	//Calibrate crosshair
 	void calibrateCrossHair();
 
@@ -104,6 +106,7 @@ private:
 	Ogre::Entity*				m_pCurrentEntity;
 	bool						m_bLMouseDown, m_bRMouseDown;
 	bool						m_bSettingsMode;
+	bool						m_bShooting;
 
 	float						m_spawnElapsedTime;
 	float						m_spawnRndDelay;

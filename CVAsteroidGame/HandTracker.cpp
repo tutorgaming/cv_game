@@ -46,8 +46,8 @@ void HandTracker::detectHand(Mat &inputImage, Rect &handRect)
 
 float* HandTracker::getHandPosition()
 {
-	float xPos = (lastHandRect.x + lastHandRect.width / 2 - m_FrameWidth / 2) / m_FrameWidth * 2;
-	float yPos = -(lastHandRect.y + lastHandRect.height / 2 - m_FrameHeight / 2) / m_FrameHeight * 2;
+	float xPos = (lastHandRect.x + lastHandRect.width / 2.0f - m_FrameWidth / 2) / m_FrameWidth * 2;
+	float yPos = -(lastHandRect.y + lastHandRect.height / 2.0f - m_FrameHeight / 2) / m_FrameHeight * 2;
 	float* result = new float[2];
 	result[0] = xPos;
 	result[1] = yPos;

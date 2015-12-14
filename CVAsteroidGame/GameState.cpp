@@ -25,6 +25,7 @@ GameState::GameState()
     m_bQuit             = false;
     m_bSettingsMode     = false;
 
+	m_bShooting			= false;
 
     m_pDetailsPanel		= 0;
 
@@ -120,7 +121,7 @@ void GameState::createScene()
 	m_bulletDelay = 300;
 	m_bulletElapsedTime = 0;
 
-	m_headMoveScale = 150;
+	m_headMoveScale = 45;
 
 	//Create Mouse Cursor
 	
@@ -132,8 +133,8 @@ void GameState::createScene()
 	m_manaPoint = m_maxManaPoint;
 
 	m_damagePerHit = 200;
-	m_manaPerShot = 200;
-	m_manaPerTime = 0.1f;
+	m_manaPerShot = 100;
+	m_manaPerTime = 0.5f;
 	
 	m_isAlive = true;
 
@@ -488,7 +489,8 @@ void GameState::moveCursorByHeadPose()
 		mousePosition.x
 		, mousePosition.y
 		);
-	
+	m_shootPos.x = mousePosition.x;
+	m_shootPos.y = mousePosition.y;
 
 	m_LastHeadPose = currentRotationMatrix;
 	
@@ -566,6 +568,7 @@ void GameState::update(double timeSinceLastFrame)
 	moveCursorByHeadPose();
 
 	// Generate meteor
+	checkHandMoving();
 	checkGenerateMeteor(timeSinceLastFrame);
 	checkGenerateBullet(timeSinceLastFrame);
 
@@ -670,7 +673,7 @@ void GameState::checkGenerateBullet(double timeSinceLastFrame)
 {
 	//Will be implement 
 	//Single pulser
-	if(m_bLMouseDown)
+	if(m_bLMouseDown || m_bShooting)
 	{
 		if (m_manaPoint >= m_manaPerShot)
 		{
@@ -732,6 +735,30 @@ void GameState::getHit()
 	{
 		m_hitPoint = 0;
 		m_isAlive = false;
+	}
+}
+
+void GameState::checkHandMoving()
+{
+	if (CVProcess::getInstance().mHandTracker->isTracking())
+	{
+		float* pos = CVProcess::getInstance().mHandTracker->getHandPosition();
+		if (pos[1] >= 0)
+		{
+			if (!m_bShooting)
+			{
+				m_bulletElapsedTime = 400;
+			}
+			m_bShooting = true;
+		}
+		else
+		{
+			m_bShooting = false;
+		}
+	}
+	else if (m_bShooting)
+	{
+		m_bShooting = false;
 	}
 }
 

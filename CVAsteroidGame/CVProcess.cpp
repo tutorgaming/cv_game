@@ -53,13 +53,13 @@ void CVProcess::runThread()
 			// Cut face off
 			Mat imgNoFace = captureFrame.clone();			
 			Rect lastFaceRect = mHeadPose->getLastFaceRect();
-			Mat faceMat = imgNoFace.colRange(lastFaceRect.x, lastFaceRect.x + lastFaceRect.width).rowRange(lastFaceRect.y, lastFaceRect.y + lastFaceRect.height);
-			Mat zeroMask = Mat::zeros(lastFaceRect.height, lastFaceRect.width, CV_8UC3);
+			Mat faceMat = imgNoFace.colRange(lastFaceRect.x, lastFaceRect.x + lastFaceRect.width).rowRange(lastFaceRect.y, imgNoFace.rows - 1);
+			Mat zeroMask = Mat::zeros(faceMat.rows, faceMat.cols, CV_8UC3);
 			zeroMask.copyTo(faceMat);
 
 			// Track hand
 			mHandTracker->process(imgNoFace);
-			rectangle(result, mHandTracker->getLastHandRect(), Scalar(255,0 ,0));
+			if(mHandTracker->isTracking())rectangle(result, mHandTracker->getLastHandRect(), Scalar(255,0 ,0));
 			cv::imshow("Webcam", result);
 		}
 
