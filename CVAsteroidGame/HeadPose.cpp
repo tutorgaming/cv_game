@@ -61,6 +61,13 @@ void HeadPose::init(void)
 	KF = KalmanFilter(4, 2, 0);
 	KF.transitionMatrix = *(Mat_<float>(4, 4) << 1, 0, 1, 0, 0, 1, 0, 1, 0, 0, 1, 0, 0, 0, 0, 1);
 
+	useLastNoseCount = 0;
+	useLastLEyeCount = 0;
+	useLastREyeCount = 0;
+	useLastMouthCount = 0;
+
+	maxUseLast = 16;
+
 }
 
 void project(CvPoint3D32f &input, CvPoint2D32f &output)
@@ -211,14 +218,20 @@ int HeadPose::getDistance2(Rect &rect1, Rect &rect2)
 	return dx*dx + dy*dy;
 }
 
-Rect HeadPose::getBestMatching(Mat &inputImage, Rect &lastRect, Mat &lastMatch, Mat &oriTemplate)
+Rect HeadPose::getBestMatching(Mat &inputImage, Rect &lastRect, Mat &lastMatch, Mat &oriTemplate, int &useLastCount)
 {
 	Rect newRect = getMatchingRect(inputImage, oriTemplate);
 	int dist = getDistance2(newRect, lastRect);
-	if (dist > distThreshold)
+	if (useLastCount < maxUseLast && dist > distThreshold)
 	{
 		// Incorrect, get nearest to last match
 		newRect = getMatchingRect(inputImage, lastMatch);
+		useLastCount++;
+	}
+	else
+	{
+		// Reset count
+		useLastCount = 0;
 	}
 	return newRect;
 }
@@ -253,21 +266,21 @@ void HeadPose::trackFaceFeatures(Mat &inputImage)
 	lastFaceRect = faceRect;
 	Mat face_roi = Mat(inputImage, faceRect);
 
-	Rect noseRect = getBestMatching(face_roi, lastNoseRect, lastNoseMatch, noseTemplate);
+	Rect noseRect = getBestMatching(face_roi, lastNoseRect, lastNoseMatch, noseTemplate, useLastNoseCount);
 
 	Rect top_left_rect = Rect(0, 0, max(noseRect.x + noseRect.width, leftEyeTemplate.cols), max(noseRect.y + noseRect.height, leftEyeTemplate.rows));
 	Mat face_top_left_roi(face_roi, top_left_rect);
-	Rect leftEyeRect = getBestMatching(face_top_left_roi, lastLeftEyeRect, lastLeftEyeMatch, leftEyeTemplate);
+	Rect leftEyeRect = getBestMatching(face_top_left_roi, lastLeftEyeRect, lastLeftEyeMatch, leftEyeTemplate, useLastLEyeCount);
 
 	int tr_width = max(rightEyeTemplate.cols, faceRect.width - noseRect.x);
 	Rect top_right_rect = Rect(faceRect.width - tr_width, 0, tr_width, max(noseRect.y + noseRect.height, rightEyeTemplate.rows));
 	Mat face_top_right_roi(face_roi, top_right_rect);
-	Rect rightEyeRect = getBestMatching(face_top_right_roi, lastRightEyeRect, lastRightEyeMatch, rightEyeTemplate);
+	Rect rightEyeRect = getBestMatching(face_top_right_roi, lastRightEyeRect, lastRightEyeMatch, rightEyeTemplate, useLastREyeCount);
 
 	int b_height = max(mouthTemplate.rows, faceRect.height - (noseRect.y + (int)(noseRect.height*0.67)));
 	Rect bottom_rect = Rect(0, faceRect.height - b_height, faceRect.width, b_height);
 	Mat face_bottom_roi(face_roi, bottom_rect);
-	Rect mouthRect = getBestMatching(face_bottom_roi, lastMouthRect, lastMouthMatch, mouthTemplate);
+	Rect mouthRect = getBestMatching(face_bottom_roi, lastMouthRect, lastMouthMatch, mouthTemplate, useLastMouthCount);
 
 	lastNoseRect = noseRect;
 	lastNoseMatch = Mat(face_roi, noseRect).clone();
