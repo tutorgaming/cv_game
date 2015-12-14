@@ -12,6 +12,11 @@ class HandTracker
 private:
 	CascadeClassifier	hand_cascade;
 	Rect lastHandRect;
+	float resizeScale;
+	float invResizeScale;
+	int m_FrameWidth;
+	int m_FrameHeight;
+	bool m_IsTracking;
 public:
 
 private:
@@ -21,7 +26,8 @@ public:
 	HandTracker(void);
 	virtual ~HandTracker(void);
 	void init(void);
-	void process(cv::Mat &input, cv::Mat &output);
+	void process(cv::Mat &input);
 	Rect getLastHandRect() { return lastHandRect; };
-
+	float* getHandPosition();
+	bool isTracking() { return m_IsTracking; };
 };
