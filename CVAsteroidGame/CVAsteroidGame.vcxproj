@@ -95,6 +95,7 @@
     <ClCompile Include="AdvancedOgreFramework.cpp" />
     <ClCompile Include="AppStateManager.cpp" />
     <ClCompile Include="Bullet.cpp" />
+    <ClCompile Include="CreditState.cpp" />
     <ClCompile Include="CVProcess.cpp" />
     <ClCompile Include="DemoApp.cpp" />
     <ClCompile Include="DotSceneLoader.cpp" />
@@ -112,6 +113,7 @@
     <ClInclude Include="AppState.hpp" />
     <ClInclude Include="AppStateManager.hpp" />
     <ClInclude Include="Bullet.hpp" />
+    <ClInclude Include="CreditState.hpp" />
     <ClInclude Include="CVProcess.hpp" />
     <ClInclude Include="DemoApp.hpp" />
     <ClInclude Include="DotSceneLoader.hpp" />
