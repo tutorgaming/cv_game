@@ -59,14 +59,14 @@ void HeadPose::init(void)
 
 	//Kalman Filter
 	KF = KalmanFilter(4, 2, 0);
-	KF.transitionMatrix = *(Mat_<float>(4, 4) << 1, 0, 1, 0, 0, 1, 0, 1, 0, 0, 1, 0, 0, 0, 0, 1);
+	KF.transitionMatrix = *(Mat_<float>(4, 4) << 1, 0, 3, 0, 0, 1, 0, 3, 0, 0, 1, 0, 0, 0, 0, 1);
 
 	useLastNoseCount = 0;
 	useLastLEyeCount = 0;
 	useLastREyeCount = 0;
 	useLastMouthCount = 0;
 
-	maxUseLast = 16;
+	maxUseLast = 32;
 
 	m_selectTemplates = false;
 
