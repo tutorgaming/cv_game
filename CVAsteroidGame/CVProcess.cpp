@@ -27,6 +27,8 @@ void CVProcess::init(void)
 	mHandTracker = new HandTracker();
 	mHandTracker->init();
 
+	scorePass = 0;
+
 	// Create the thread and start work
 	assert(!mThread);
 	mThread = boost::shared_ptr<boost::thread>(new boost::thread(boost::bind(&CVProcess::runThread, this)));
@@ -34,7 +36,7 @@ void CVProcess::init(void)
 	namedWindow("Webcam");
 	moveWindow("Webcam", 0, 0);
 
-	scorePass = 0;
+	
 }
 
 void CVProcess::runThread()
