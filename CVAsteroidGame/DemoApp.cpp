@@ -6,6 +6,7 @@
 #include "GameState.hpp"
 #include "PauseState.hpp"
 #include "CreditState.hpp"
+#include "ScoreState.hpp"
 
 //|||||||||||||||||||||||||||||||||||||||||||||||
 
@@ -45,7 +46,7 @@ void DemoApp::startDemo()
 	CreditState::create(m_pAppStateManager, "CreditState");
 	GameState::create(m_pAppStateManager, "GameState");
     PauseState::create(m_pAppStateManager, "PauseState");
-
+	ScoreState::create(m_pAppStateManager, "ScoreState");
 
 	// Start!
 

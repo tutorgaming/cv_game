@@ -735,6 +735,7 @@ void GameState::getHit()
 	{
 		m_hitPoint = 0;
 		m_isAlive = false;
+		pushAppState(findByName("ScoreState"));
 	}
 }
 

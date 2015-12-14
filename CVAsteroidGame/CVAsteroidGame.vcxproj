@@ -107,6 +107,7 @@
     <ClCompile Include="MenuState.cpp" />
     <ClCompile Include="Meteor.cpp" />
     <ClCompile Include="PauseState.cpp" />
+    <ClCompile Include="ScoreState.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="AdvancedOgreFramework.hpp" />
@@ -125,6 +126,7 @@
     <ClInclude Include="Meteor.hpp" />
     <ClInclude Include="PauseState.hpp" />
     <ClInclude Include="rapidxml.hpp" />
+    <ClInclude Include="ScoreState.hpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
