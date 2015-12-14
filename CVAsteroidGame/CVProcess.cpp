@@ -33,7 +33,7 @@ void CVProcess::init(void)
 	mThread = boost::shared_ptr<boost::thread>(new boost::thread(boost::bind(&CVProcess::runThread, this)));
 
 	namedWindow("Webcam");
-		
+	moveWindow("Webcam", 0, 0);
 }
 
 void CVProcess::runThread()
@@ -59,7 +59,12 @@ void CVProcess::runThread()
 
 			// Track hand
 			mHandTracker->process(imgNoFace);
+
 			if(mHandTracker->isTracking())rectangle(result, mHandTracker->getLastHandRect(), Scalar(255,0 ,0));
+
+			// Resize before show
+			resize(result, result, Size(result.cols / 2, result.rows / 2));
+
 			cv::imshow("Webcam", result);
 		}
 

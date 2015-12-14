@@ -59,15 +59,20 @@ void HeadPose::init(void)
 
 	//Kalman Filter
 	KF = KalmanFilter(4, 2, 0);
-	KF.transitionMatrix = *(Mat_<float>(4, 4) << 1, 0, 1, 0, 0, 1, 0, 1, 0, 0, 1, 0, 0, 0, 0, 1);
+	KF.transitionMatrix = *(Mat_<float>(4, 4) << 1, 0, 3, 0, 0, 1, 0, 3, 0, 0, 1, 0, 0, 0, 0, 1);
 
 	useLastNoseCount = 0;
 	useLastLEyeCount = 0;
 	useLastREyeCount = 0;
 	useLastMouthCount = 0;
 
-	maxUseLast = 16;
+	maxUseLast = 32;
 
+	m_selectTemplates = false;
+
+
+	namedWindow("Detection");
+	moveWindow("Detection", 0, 400);
 }
 
 void project(CvPoint3D32f &input, CvPoint2D32f &output)
@@ -105,6 +110,35 @@ void transformAndProject(CvPoint3D32f &input, CvPoint2D32f &output, float* rotat
 		output.y = FOCAL_LENGTH * point3D.y / point3D.z;
 	}
 }
+
+void HeadPose::calibrateDetection()
+{
+	namedWindow("Detection");
+	moveWindow("Detection", 0, 400);
+
+	m_foundFace = false;
+}
+
+void HeadPose::calibrateTracking()
+{
+	if (!m_foundFace) return;
+	lastNoseMatch = noseTemplate.clone();
+
+	lastLeftEyeMatch = leftEyeTemplate.clone();
+
+	lastRightEyeMatch = rightEyeTemplate.clone();
+
+	lastMouthMatch = mouthTemplate.clone();
+}
+
+void HeadPose::selectTemplates()
+{
+	if (m_foundFace || m_selectTemplates) return;
+	m_selectTemplates = true;
+}
+
+
+
 
 void HeadPose::detectFaceFeatures(Mat &inputImage)
 {
@@ -171,8 +205,8 @@ void HeadPose::detectFaceFeatures(Mat &inputImage)
 						mouthTemplate = Mat(face_bottom_roi, mouthRect);
 						rectangle(showImage, Rect(faceRect.x + bottom_rect.x + mouthRect.x, faceRect.y + bottom_rect.y + mouthRect.y, mouthRect.width, mouthRect.height), Scalar(255, 0, 0));
 
-						if (waitKey(10) == 'o') {
-							destroyWindow("Detected Face features");
+						if ( m_selectTemplates || waitKey(10) == 'o') {
+							destroyWindow("Detection");
 							m_foundFace = true;
 
 							lastNoseMatch = noseTemplate.clone();
@@ -198,6 +232,8 @@ void HeadPose::detectFaceFeatures(Mat &inputImage)
 							setIdentity(KF.processNoiseCov, Scalar::all(1e-4));
 							setIdentity(KF.measurementNoiseCov, Scalar::all(1e-1));
 							setIdentity(KF.errorCovPost, Scalar::all(.1));
+
+							m_selectTemplates = false;
 						}
 					}
 				}
@@ -207,6 +243,7 @@ void HeadPose::detectFaceFeatures(Mat &inputImage)
 	}
 	if (!m_foundFace)
 	{
+		resize(showImage, showImage, Size(showImage.cols / 2, showImage.rows / 2));
 		imshow("Detection", showImage);
 	}
 }

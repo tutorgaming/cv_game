@@ -144,6 +144,7 @@ private:
 
 	//Cursor Position
 	Ogre::Vector3				mousePosition;
+	Ogre::Vector3				targetMousePosition;
 
 	// Calibrate cross-hair
 	int m_crossOffsetX;

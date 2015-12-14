@@ -35,6 +35,8 @@ GameState::GameState()
 	m_crossOffsetX = 0;
 	m_crossOffsetY = 0;
 
+	targetMousePosition = Ogre::Vector3(0, 0, 0);
+
 }
 
 //|||||||||||||||||||||||||||||||||||||||||||||||
@@ -464,9 +466,11 @@ void GameState::moveCursorByHeadPose()
 	//Ogre::Vector3 *mousePosition = new Ogre::Vector3(m_currentLookPos.x,-m_currentLookPos.y,0.0f);
 	//Receiving 
 	float* lookPosition = (CVProcess::getInstance().mHeadPose)->getLookPosition();
-	mousePosition.x = lookPosition[0] * OgreFramework::getSingletonPtr()->m_pViewport->getActualWidth()  + OgreFramework::getSingletonPtr()->m_pViewport->getActualWidth() * 0.5f + m_crossOffsetX;
-	mousePosition.y = lookPosition[1] * OgreFramework::getSingletonPtr()->m_pViewport->getActualHeight() * 2 + OgreFramework::getSingletonPtr()->m_pViewport->getActualHeight() * 0.5f + +m_crossOffsetY;
-	mousePosition.z = 0.0f;
+	targetMousePosition.x = lookPosition[0] * OgreFramework::getSingletonPtr()->m_pViewport->getActualWidth() + OgreFramework::getSingletonPtr()->m_pViewport->getActualWidth() * 0.5f + m_crossOffsetX;
+	targetMousePosition.y = lookPosition[1] * OgreFramework::getSingletonPtr()->m_pViewport->getActualHeight() * 2 + OgreFramework::getSingletonPtr()->m_pViewport->getActualHeight() * 0.5f + +m_crossOffsetY;
+	targetMousePosition.z = 0.0f;
+
+	mousePosition += 0.06 * (targetMousePosition - mousePosition);
 
 	//Boundary
 	if( mousePosition.x >= OgreFramework::getSingletonPtr()->m_pViewport->getActualWidth()){

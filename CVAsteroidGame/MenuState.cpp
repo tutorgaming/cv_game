@@ -1,10 +1,10 @@
 //|||||||||||||||||||||||||||||||||||||||||||||||
 
 #include "MenuState.hpp"
+#include "CVProcess.hpp"
+
 
 //|||||||||||||||||||||||||||||||||||||||||||||||
-
-using namespace Ogre;
 
 //|||||||||||||||||||||||||||||||||||||||||||||||
 
@@ -21,23 +21,23 @@ void MenuState::enter()
     OgreFramework::getSingletonPtr()->m_pLog->logMessage("Entering MenuState...");
 
 
-    m_pSceneMgr = OgreFramework::getSingletonPtr()->m_pRoot->createSceneManager(ST_GENERIC, "MenuSceneMgr");
+	m_pSceneMgr = OgreFramework::getSingletonPtr()->m_pRoot->createSceneManager(Ogre::ST_GENERIC, "MenuSceneMgr");
 
     m_pSceneMgr->setAmbientLight(Ogre::ColourValue(0.7f, 0.7f, 0.7f));
 
     m_pSceneMgr->addRenderQueueListener(OgreFramework::getSingletonPtr()->m_pOverlaySystem);
 	
     m_pCamera = m_pSceneMgr->createCamera("MenuCam");
-    m_pCamera->setPosition(Vector3(0, 25, -50));
-    m_pCamera->lookAt(Vector3(0, 0, 0));
+	m_pCamera->setPosition(Ogre::Vector3(0, 25, -50));
+	m_pCamera->lookAt(Ogre::Vector3(0, 0, 0));
     m_pCamera->setNearClipDistance(1);
 
-    m_pCamera->setAspectRatio(Real(OgreFramework::getSingletonPtr()->m_pViewport->getActualWidth()) /
-        Real(OgreFramework::getSingletonPtr()->m_pViewport->getActualHeight()));
+	m_pCamera->setAspectRatio(Ogre::Real(OgreFramework::getSingletonPtr()->m_pViewport->getActualWidth()) /
+		Ogre::Real(OgreFramework::getSingletonPtr()->m_pViewport->getActualHeight()));
 
 	OgreFramework::getSingletonPtr()->m_pTrayMgr->hideBackdrop();
 
-	OgreFramework::getSingletonPtr()->m_pViewport->setBackgroundColour(ColourValue(0.00f, 0.00f, 0.00f, 1.0f));
+	OgreFramework::getSingletonPtr()->m_pViewport->setBackgroundColour(Ogre::ColourValue(0.00f, 0.00f, 0.00f, 1.0f));
     OgreFramework::getSingletonPtr()->m_pViewport->setCamera(m_pCamera);
 
     OgreFramework::getSingletonPtr()->m_pTrayMgr->destroyAllWidgets();
@@ -83,6 +83,20 @@ bool MenuState::keyPressed(const OIS::KeyEvent &keyEventRef)
         m_bQuit = true;
         return true;
     }
+
+	//Press O to select templates or recalibrate tracking
+	if (OgreFramework::getSingletonPtr()->m_pKeyboard->isKeyDown(OIS::KC_O))
+	{
+		CVProcess::getInstance().mHeadPose->selectTemplates();
+		return true;
+	}
+
+	//Press R to re-detect facial features
+	if (OgreFramework::getSingletonPtr()->m_pKeyboard->isKeyDown(OIS::KC_R))
+	{
+		CVProcess::getInstance().mHeadPose->calibrateDetection();
+		return true;
+	}
 
     OgreFramework::getSingletonPtr()->keyPressed(keyEventRef);
     return true;
