@@ -33,6 +33,7 @@ private:
 	KalmanFilter KF;
 	int useLastNoseCount, useLastLEyeCount, useLastREyeCount, useLastMouthCount;
 	int maxUseLast;
+	bool m_selectTemplates;
 public:
 	HeadPose(void);
 	virtual ~HeadPose(void);
@@ -41,6 +42,9 @@ public:
 	float* getHeadPosition();
 	float* getLookPosition();
 	Rect getLastFaceRect() { return lastFaceRect; };
+	void calibrateDetection();
+	void calibrateTracking();
+	void selectTemplates();
 private:
 	void detectFaceFeatures(Mat &inputImage);
 	void trackFaceFeatures(Mat &inputImage);
