@@ -205,7 +205,7 @@ void HeadPose::detectFaceFeatures(Mat &inputImage)
 						mouthTemplate = Mat(face_bottom_roi, mouthRect);
 						rectangle(showImage, Rect(faceRect.x + bottom_rect.x + mouthRect.x, faceRect.y + bottom_rect.y + mouthRect.y, mouthRect.width, mouthRect.height), Scalar(255, 0, 0));
 
-						if ( m_selectTemplates || waitKey(10) == 'o') {
+						if ( m_selectTemplates) {
 							destroyWindow("Detection");
 							m_foundFace = true;
 
